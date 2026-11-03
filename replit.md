@@ -54,6 +54,7 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 - Demo-code verification, the simple Smart Route planner, grounded doctor briefings, and the explicitly requested Pharmacy Insights Lite aggregate module are in scope. Use a secure existing server-side model only if actually available; otherwise disclose the structured-rule fallback. Do not add WhatsApp, SMS, prescription/patient pharmacy workflows, live traffic or external road-navigation integrations.
 - Extend current code and preserve all saved data; seed additions must never overwrite edited doctor records.
 - Be explicit about actual verification results and incomplete features; never claim unperformed browser tests.
+- Feature work is frozen for demonstration readiness. Audit the full flow and fix only blocking bugs; preserve all persisted data. **Why:** the user explicitly requested a feature freeze. Do not implement proposed follow-ups or add capabilities unless the user explicitly reopens feature work.
 
 ## Gotchas
 
