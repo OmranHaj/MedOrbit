@@ -3,15 +3,31 @@ import { ClipboardList, Plus, Stethoscope, Users, CalendarCheck, Sparkles, Packa
 import { PageHeader, Panel, Skel, ErrorState, EmptyState, LinkBtn, PrivacyNote } from "@/components/ui-kit";
 import { VisitCard } from "@/components/visit-row";
 import { fmtNum, OUTCOMES } from "@/lib/format";
+import { useLayoutEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { MedOrbitIntro } from "@/components/motion/medorbit-intro";
 
 export default function Dashboard() {
   const q = useGetDashboard({ query: { queryKey: getGetDashboardQueryKey(), staleTime: 0, refetchOnWindowFocus: true, refetchInterval: 30000 } });
   const d = q.data;
   const month = new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(new Date());
+  const stats = useRef<HTMLDivElement>(null);
+  const ready = !!d && !q.isError;
+  useLayoutEffect(() => {
+    if (!ready || !stats.current) return;
+    const media = gsap.matchMedia(stats.current);
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.fromTo("[data-orbit-stat]", { opacity: 0.55, y: 14 }, {
+        opacity: 1, y: 0, duration: 0.5, stagger: 0.065, ease: "power2.out", clearProps: "opacity,transform",
+      });
+    });
+    return () => media.revert();
+  }, [ready]);
 
   return (
     <>
       <PageHeader eyebrow="نظرة عامة" title="لوحة الشركة" subtitle="أرقام محسوبة مباشرة من السجلات المحفوظة في التطبيق، بلا أي تقديرات." action={<LinkBtn href="/visits/new" variant="teal" testId="link-dashboard-new-visit"><Plus className="h-4 w-4" />تسجيل زيارة</LinkBtn>} />
+      <MedOrbitIntro />
       <div className="mb-6"><PrivacyNote /></div>
       {q.isLoading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <Skel key={i} className="h-28" />)}</div>
@@ -19,7 +35,7 @@ export default function Dashboard() {
         <ErrorState onRetry={() => q.refetch()} message="تعذّر تحميل لوحة الشركة." />
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <div ref={stats} className="grid grid-cols-2 gap-3 lg:grid-cols-3">
             <Stat hero order={0} label="إجمالي الزيارات" value={d.visitCount} icon={<ClipboardList className="h-4 w-4" />} id="visits" />
             <Stat order={1} label={`زيارات ${month}`} value={d.monthVisitCount} icon={<CalendarCheck className="h-4 w-4" />} id="month" />
             <Stat order={2} label="نتائج «مهتم»" value={d.interestedCount} icon={<Sparkles className="h-4 w-4" />} id="interested" />
@@ -86,7 +102,7 @@ export default function Dashboard() {
 
 function Stat({ label, value, icon, sub, hero, id, order }: { label: string; value: number; icon: React.ReactNode; sub?: string; hero?: boolean; id: string; order: number }) {
   return (
-    <div className={`rise dashboard-stat rounded-2xl border p-4 sm:p-5 ${hero ? "border-primary bg-primary text-primary-foreground" : "border-card-border bg-card"}`} style={{ animationDelay: `${order * 65}ms` }}>
+    <div data-orbit-stat={order} className={`dashboard-stat rounded-2xl border p-4 sm:p-5 ${hero ? "border-primary bg-primary text-primary-foreground" : "border-card-border bg-card"}`}>
       <div className={`flex items-center gap-2 text-xs font-medium ${hero ? "text-primary-foreground/70" : "text-muted-foreground"}`}><span className={hero ? "text-[hsl(173_62%_55%)]" : "text-accent"}>{icon}</span>{label}</div>
       <div className="mt-2 flex items-baseline gap-2"><span className="num font-display text-3xl font-bold" data-testid={`stat-${id}`}>{fmtNum(value)}</span>{sub && <span className="text-xs opacity-70">{sub}</span>}</div>
     </div>
