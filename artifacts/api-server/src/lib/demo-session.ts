@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Request, Response } from "express";
 import { and, eq, gt, sql } from "drizzle-orm";
-import { db, demoSessionsTable } from "@workspace/db";
+import { db, demoSessionsTable, representativesTable } from "@workspace/db";
 
 type Role = "representative" | "clinic_demo";
 const cookieNames: Record<Role, string> = {
@@ -29,9 +29,14 @@ export async function getDemoSession(req: Request, role: Role) {
 export async function ensureDemoSession(req: Request, res: Response, role: Role) {
   const existing = await getDemoSession(req, role);
   if (existing) return sessionView(existing);
+  return createDemoSession(req, res, role);
+}
+
+// A view change mints a NEW opaque session. Never relabel an existing author.
+export async function createDemoSession(req: Request, res: Response, role: Role, representativeDirectoryId: number | null = null) {
   const token = randomBytes(32).toString("hex");
   const [session] = await db.insert(demoSessionsTable).values({
-    id: randomUUID(), tokenHash: digest(token), role,
+    id: randomUUID(), tokenHash: digest(token), role, representativeDirectoryId,
     expiresAt: sql`clock_timestamp() + interval '7 days'`,
   }).returning();
   const secure = req.secure || req.get("x-forwarded-proto")?.split(",")[0]?.trim() === "https";
@@ -39,9 +44,12 @@ export async function ensureDemoSession(req: Request, res: Response, role: Role)
   return sessionView(session);
 }
 
-function sessionView(session: typeof demoSessionsTable.$inferSelect) {
+async function sessionView(session: typeof demoSessionsTable.$inferSelect) {
+  const [person] = session.representativeDirectoryId
+    ? await db.select().from(representativesTable).where(eq(representativesTable.id, session.representativeDirectoryId))
+    : [];
   return {
     id: session.id, role: session.role, expiresAt: session.expiresAt.toISOString(),
-    label: session.role === "representative" ? representativeLabel(session.id) : "سكرتير العيادة التجريبي — DEMO",
+    label: session.role === "representative" ? (person?.name ?? representativeLabel(session.id)) : "سكرتير العيادة التجريبي — DEMO",
   };
 }

@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import type { Visit } from "@workspace/api-client-react";
-import { BadgeCheck, CalendarDays, CircleDashed, Package } from "lucide-react";
+import { BadgeCheck, CalendarDays, UserRound, CircleDashed, Package } from "lucide-react";
 import { OutcomeBadge } from "@/components/ui-kit";
 import { fmtDate } from "@/lib/format";
 
@@ -15,6 +15,7 @@ export function VisitCard({ v, showDoctor = true }: { v: Visit; showDoctor?: boo
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {showDoctor && <span>{v.doctorSpecialty} · {v.doctorRegion}</span>}
             <span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{fmtDate(v.date)}</span>
+            <span className="inline-flex items-center gap-1" data-testid={`text-visit-author-${v.id}`}><UserRound className="h-3.5 w-3.5" />{v.authorName ? v.authorName : v.authorRepresentativeId != null ? `مندوب #${v.authorRepresentativeId}` : "كاتب غير محدد (تقرير سابق)"}</span>
             <span className="inline-flex items-center gap-1"><Package className="h-3.5 w-3.5" />{v.productName}</span>
           </div>
         </div>

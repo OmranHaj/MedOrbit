@@ -17,6 +17,8 @@ import VisitNew from '@/pages/visit-new';
 import SmartRoute from '@/pages/smart-route';
 import ClinicDemo from '@/pages/clinic-demo';
 import PharmacyInsights from '@/pages/pharmacy-insights';
+import Handover from '@/pages/handover';
+import MyRegion from '@/pages/my-region';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnMount: true, refetchOnWindowFocus: true, retry: 1 } },
@@ -46,6 +48,8 @@ function ShellRoutes() {
           <Route path="/visits/new" component={VisitNew} />
           <Route path="/smart-route" component={SmartRoute} />
           <Route path="/pharmacy-insights" component={PharmacyInsights} />
+          <Route path="/handover" component={Handover} />
+          <Route path="/my-region" component={MyRegion} />
           <Route component={NotFound} />
         </Switch>
       </RoutedErrorBoundary>

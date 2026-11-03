@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { db, doctorsTable, productsTable, visitsTable, pharmacyObservationsTable } from "@workspace/db";
-import { count, countDistinct, desc, eq, sql } from "drizzle-orm";
+import { count, countDistinct, sql } from "drizzle-orm";
 import { GetDashboardResponse } from "@workspace/api-zod";
-import { visitFields } from "../lib/visit-query";
+import { visitsQuery } from "../lib/visit-query";
 
 const router: IRouter = Router();
 router.get("/dashboard", async (_req, res): Promise<void> => {
@@ -23,10 +23,7 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
       .from(visitsTable).groupBy(visitsTable.outcome).orderBy(visitsTable.outcome);
     const regions = await tx.select({ label: doctorsTable.region, count: count() })
       .from(doctorsTable).groupBy(doctorsTable.region).orderBy(doctorsTable.region);
-    const recentVisits = await tx.select(visitFields).from(visitsTable)
-      .innerJoin(doctorsTable, eq(visitsTable.doctorId, doctorsTable.id))
-      .innerJoin(productsTable, eq(visitsTable.productId, productsTable.id))
-      .orderBy(desc(visitsTable.date), desc(visitsTable.id)).limit(5);
+    const recentVisits = await visitsQuery(tx).limit(5);
     return {
       doctorCount: doctors.value, productCount: products.value, ...totals, ...pharmacy,
       outcomes, regions, recentVisits,

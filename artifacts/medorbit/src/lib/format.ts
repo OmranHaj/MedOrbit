@@ -4,6 +4,9 @@ import {
   getGetDoctorQueryKey,
   getListVisitsQueryKey,
   getGetDashboardQueryKey,
+  getGetHandoverStateQueryKey,
+  getGetHandoverSummaryQueryKey,
+  getGetMyHandoverDoctorsQueryKey,
   VisitOutcome,
 } from "@workspace/api-client-react";
 
@@ -53,6 +56,7 @@ export async function invalidateDoctors(qc: QueryClient, id?: number) {
     qc.invalidateQueries({ queryKey: getListVisitsQueryKey() }),
     qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() }),
     invalidateBriefings(qc),
+    invalidateHandover(qc),
   ]);
 }
 
@@ -61,6 +65,7 @@ export async function invalidateVisits(qc: QueryClient) {
     qc.invalidateQueries({ queryKey: getListVisitsQueryKey() }),
     qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() }),
     invalidateBriefings(qc),
+    invalidateHandover(qc),
   ]);
 }
 
@@ -69,4 +74,12 @@ function invalidateBriefings(qc: QueryClient) {
     predicate: (query) => typeof query.queryKey[0] === "string" &&
       /^\/api\/doctors\/\d+\/briefing$/.test(query.queryKey[0]),
   });
+}
+
+function invalidateHandover(qc: QueryClient) {
+  return Promise.all([
+    qc.invalidateQueries({ queryKey: getGetHandoverStateQueryKey() }),
+    qc.invalidateQueries({ queryKey: getGetHandoverSummaryQueryKey() }),
+    qc.invalidateQueries({ queryKey: getGetMyHandoverDoctorsQueryKey() }),
+  ]);
 }

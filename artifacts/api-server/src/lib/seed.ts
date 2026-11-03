@@ -1,4 +1,4 @@
-import { db, doctorsTable, productsTable } from "@workspace/db";
+import { db, doctorsTable, productsTable, representativesTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { tourDemoDoctors } from "./tour-demo-doctors";
 
@@ -6,6 +6,11 @@ import { tourDemoDoctors } from "./tour-demo-doctors";
 export async function seedDemoData(): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(7019234)`);
+    await tx.insert(representativesTable).values([
+      { demoKey: "handover-rep-a", name: "المندوب أ — شخصية خيالية" },
+      { demoKey: "handover-rep-b", name: "المندوب ب — شخصية خيالية" },
+      { demoKey: "handover-rep-c", name: "المندوب ج — شخصية خيالية" },
+    ]).onConflictDoNothing({ target: representativesTable.demoKey });
     await tx.insert(doctorsTable).values([
       {
         demoKey: "demo-doctor-1", name: "د. سليم المدار — شخصية خيالية", specialty: "أمراض القلب",

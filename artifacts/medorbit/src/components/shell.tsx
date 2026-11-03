@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus, BarChart3 } from "lucide-react";
+import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus, BarChart3, ArrowLeftRight, MapPinned } from "lucide-react";
+
+const SECONDARY = [
+  { href: "/handover", label: "تسليم المنطقة", icon: ArrowLeftRight, id: "handover" },
+  { href: "/my-region", label: "منطقتي", icon: MapPinned, id: "my-region" },
+];
 
 const NAV = [
   { href: "/", label: "لوحة الشركة", icon: LayoutDashboard, id: "dashboard" },
@@ -45,6 +50,13 @@ export function Shell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+        <div className="mt-6 border-t border-sidebar-border pt-4 space-y-1" aria-label="تسليم المناطق (محاكاة)">
+          {SECONDARY.map((n) => { const a = active(loc, n.href); return (
+            <Link key={n.href} href={n.href} data-testid={`link-nav-${n.id}`} aria-current={a ? "page" : undefined}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${a ? "bg-sidebar-accent text-white" : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-white"}`}>
+              <n.icon className={`h-4 w-4 ${a ? "text-sidebar-primary" : ""}`} />{n.label}
+            </Link>); })}
+        </div>
         <Link href="/visits/new" data-testid="link-sidebar-new-visit" className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-sidebar-primary px-4 py-2.5 text-sm font-bold text-sidebar-primary-foreground transition hover:brightness-110">
           <Plus className="h-4 w-4" />تقرير زيارة جديد
         </Link>
@@ -58,6 +70,14 @@ export function Shell({ children }: { children: ReactNode }) {
         <Link href="/" data-testid="link-home-logo-mobile"><Logo /></Link>
         <Link href="/visits/new" data-testid="link-mobile-new-visit" className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-bold text-accent-foreground"><Plus className="h-4 w-4" />زيارة</Link>
       </header>
+
+      <nav aria-label="تسليم المناطق" className="flex gap-2 overflow-x-auto border-b border-border bg-background px-4 py-2 lg:hidden">
+        {SECONDARY.map((n) => { const a = active(loc, n.href); return (
+          <Link key={n.href} href={n.href} data-testid={`link-sub-${n.id}`} aria-current={a ? "page" : undefined}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${a ? "border-accent bg-secondary text-secondary-foreground" : "border-border bg-card text-muted-foreground"}`}>
+            <n.icon className="h-3.5 w-3.5" />{n.label}
+          </Link>); })}
+      </nav>
 
       <main className="px-4 pb-28 pt-6 sm:px-6 lg:mr-64 lg:px-10 lg:pb-12 lg:pt-10">
         <div className="mx-auto max-w-6xl">{children}</div>

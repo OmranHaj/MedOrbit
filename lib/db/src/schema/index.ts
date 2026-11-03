@@ -23,3 +23,5 @@ export * from "./visits";
 export * from "./demo-sessions";
 export * from "./pending-visits";
 export * from "./pharmacy-observations";
+export * from "./representatives";
+export * from "./region-assignments";

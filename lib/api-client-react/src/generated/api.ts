@@ -32,7 +32,11 @@ import type {
   Doctor,
   DoctorBriefing,
   DoctorInput,
+  GetHandoverSummaryParams,
   GetPharmacyComparisonParams,
+  HandoverState,
+  HandoverSummary,
+  HandoverViewInput,
   HealthStatus,
   ListClinicDemoVisitsParams,
   ListDoctorsParams,
@@ -44,6 +48,8 @@ import type {
   PharmacyObservation,
   PharmacyObservationInput,
   Product,
+  RegionAssignment,
+  RegionTransferInput,
   SmartRouteInput,
   SmartRouteOptions,
   SmartRoutePlan,
@@ -1942,6 +1948,462 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetHandoverStateUrl = () => {
+
+
+
+
+  return `/api/handover`
+}
+
+export const getHandoverState = async ( options?: Parameters<typeof customFetch>[1]): Promise<HandoverState> => {
+
+  return customFetch<HandoverState>(getGetHandoverStateUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHandoverStateQueryKey = () => {
+    return [
+    `/api/handover`
+    ] as const;
+    }
+
+
+export const getGetHandoverStateQueryOptions = <TData = Awaited<ReturnType<typeof getHandoverState>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHandoverStateQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHandoverState>>> = ({ signal }) => getHandoverState({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetHandoverStateQueryResult = NonNullable<Awaited<ReturnType<typeof getHandoverState>>>
+export type GetHandoverStateQueryError = ErrorType<unknown>
+
+
+export function useGetHandoverState<TData = Awaited<ReturnType<typeof getHandoverState>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHandoverState>>,
+          TError,
+          Awaited<ReturnType<typeof getHandoverState>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHandoverState<TData = Awaited<ReturnType<typeof getHandoverState>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHandoverState>>,
+          TError,
+          Awaited<ReturnType<typeof getHandoverState>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHandoverState<TData = Awaited<ReturnType<typeof getHandoverState>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetHandoverState<TData = Awaited<ReturnType<typeof getHandoverState>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverState>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetHandoverStateQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSwitchHandoverDemoViewUrl = () => {
+
+
+
+
+  return `/api/handover/demo-view`
+}
+
+export const switchHandoverDemoView = async (handoverViewInput: HandoverViewInput, options?: Parameters<typeof customFetch>[1]): Promise<DemoSession> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<DemoSession>(getSwitchHandoverDemoViewUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(handoverViewInput)
+  }
+);}
+
+
+
+
+
+export const getSwitchHandoverDemoViewMutationKey = () => ['switchHandoverDemoView'] as const;
+
+export const getSwitchHandoverDemoViewMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof switchHandoverDemoView>>, TError,SwitchHandoverDemoViewMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof switchHandoverDemoView>>, TError,SwitchHandoverDemoViewMutationVariables, TContext> => {
+
+const mutationKey = getSwitchHandoverDemoViewMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof switchHandoverDemoView>>, SwitchHandoverDemoViewMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  switchHandoverDemoView(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SwitchHandoverDemoViewMutationResult = NonNullable<Awaited<ReturnType<typeof switchHandoverDemoView>>>
+    export type SwitchHandoverDemoViewMutationBody = BodyType<HandoverViewInput>
+    export type SwitchHandoverDemoViewMutationError = ErrorType<unknown>
+    export type SwitchHandoverDemoViewMutationVariables = {data: BodyType<HandoverViewInput>}
+
+    export const useSwitchHandoverDemoView = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof switchHandoverDemoView>>, TError,SwitchHandoverDemoViewMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof switchHandoverDemoView>>,
+        TError,
+        SwitchHandoverDemoViewMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSwitchHandoverDemoViewMutationOptions(options), queryClient);
+    }
+
+export const getTransferRegionUrl = () => {
+
+
+
+
+  return `/api/handover/assignments`
+}
+
+export const transferRegion = async (regionTransferInput: RegionTransferInput, options?: Parameters<typeof customFetch>[1]): Promise<RegionAssignment> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<RegionAssignment>(getTransferRegionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(regionTransferInput)
+  }
+);}
+
+
+
+
+
+export const getTransferRegionMutationKey = () => ['transferRegion'] as const;
+
+export const getTransferRegionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transferRegion>>, TError,TransferRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof transferRegion>>, TError,TransferRegionMutationVariables, TContext> => {
+
+const mutationKey = getTransferRegionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof transferRegion>>, TransferRegionMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  transferRegion(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TransferRegionMutationResult = NonNullable<Awaited<ReturnType<typeof transferRegion>>>
+    export type TransferRegionMutationBody = BodyType<RegionTransferInput>
+    export type TransferRegionMutationError = ErrorType<unknown>
+    export type TransferRegionMutationVariables = {data: BodyType<RegionTransferInput>}
+
+    export const useTransferRegion = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transferRegion>>, TError,TransferRegionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof transferRegion>>,
+        TError,
+        TransferRegionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getTransferRegionMutationOptions(options), queryClient);
+    }
+
+export const getGetHandoverSummaryUrl = (params: GetHandoverSummaryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/handover/summary?${stringifiedParams}` : `/api/handover/summary`
+}
+
+export const getHandoverSummary = async (params: GetHandoverSummaryParams, options?: Parameters<typeof customFetch>[1]): Promise<HandoverSummary> => {
+
+  return customFetch<HandoverSummary>(getGetHandoverSummaryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHandoverSummaryQueryKey = (params?: GetHandoverSummaryParams,) => {
+    return [
+    `/api/handover/summary`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetHandoverSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getHandoverSummary>>, TError = ErrorType<unknown>>(params: GetHandoverSummaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHandoverSummaryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHandoverSummary>>> = ({ signal }) => getHandoverSummary(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetHandoverSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getHandoverSummary>>>
+export type GetHandoverSummaryQueryError = ErrorType<unknown>
+
+
+export function useGetHandoverSummary<TData = Awaited<ReturnType<typeof getHandoverSummary>>, TError = ErrorType<unknown>>(
+ params: GetHandoverSummaryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHandoverSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getHandoverSummary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHandoverSummary<TData = Awaited<ReturnType<typeof getHandoverSummary>>, TError = ErrorType<unknown>>(
+ params: GetHandoverSummaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHandoverSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getHandoverSummary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHandoverSummary<TData = Awaited<ReturnType<typeof getHandoverSummary>>, TError = ErrorType<unknown>>(
+ params: GetHandoverSummaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetHandoverSummary<TData = Awaited<ReturnType<typeof getHandoverSummary>>, TError = ErrorType<unknown>>(
+ params: GetHandoverSummaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHandoverSummary>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetHandoverSummaryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMyHandoverDoctorsUrl = () => {
+
+
+
+
+  return `/api/handover/my-doctors`
+}
+
+export const getMyHandoverDoctors = async ( options?: Parameters<typeof customFetch>[1]): Promise<HandoverSummary[]> => {
+
+  return customFetch<HandoverSummary[]>(getGetMyHandoverDoctorsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyHandoverDoctorsQueryKey = () => {
+    return [
+    `/api/handover/my-doctors`
+    ] as const;
+    }
+
+
+export const getGetMyHandoverDoctorsQueryOptions = <TData = Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyHandoverDoctorsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyHandoverDoctors>>> = ({ signal }) => getMyHandoverDoctors({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMyHandoverDoctorsQueryResult = NonNullable<Awaited<ReturnType<typeof getMyHandoverDoctors>>>
+export type GetMyHandoverDoctorsQueryError = ErrorType<unknown>
+
+
+export function useGetMyHandoverDoctors<TData = Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyHandoverDoctors>>,
+          TError,
+          Awaited<ReturnType<typeof getMyHandoverDoctors>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyHandoverDoctors<TData = Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyHandoverDoctors>>,
+          TError,
+          Awaited<ReturnType<typeof getMyHandoverDoctors>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyHandoverDoctors<TData = Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetMyHandoverDoctors<TData = Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyHandoverDoctors>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMyHandoverDoctorsQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

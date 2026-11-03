@@ -1,1 +1,2 @@
 - [GitHub upload access](github-upload-access.md) — use Replit’s secure Git provider proxy when connector access is unavailable; never extract tokens.
+- [Named OpenAPI inputs](named-openapi-inputs.md) — inline request objects can collide in generated Zod/type exports; use named component input schemas.

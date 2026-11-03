@@ -5,6 +5,265 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
+export interface HandoverViewInput {
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  representativeId: number | null;
+}
+
+export interface RegionTransferInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  region: string;
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  fromRepresentativeId: number | null;
+  /** @minimum 1 */
+  toRepresentativeId: number;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export interface Representative {
+  id: number;
+  name: string;
+}
+
+export interface RegionAssignment {
+  region: string;
+  representativeId: number;
+  representativeName: string;
+  version: number;
+  updatedAt: string;
+}
+
+export interface RegionTransfer {
+  id: number;
+  region: string;
+  /** @nullable */
+  fromRepresentativeId: number | null;
+  /** @nullable */
+  fromRepresentativeName: string | null;
+  toRepresentativeId: number;
+  toRepresentativeName: string;
+  version: number;
+  createdAt: string;
+}
+
+export interface HandoverState {
+  representatives: Representative[];
+  regions: string[];
+  assignments: RegionAssignment[];
+  history: RegionTransfer[];
+  /** @nullable */
+  demoRepresentativeId: number | null;
+}
+
+export interface DoctorInput {
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  name: string;
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  specialty: string;
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  region: string;
+  /**
+     * @minLength 3
+     * @maxLength 250
+     */
+  clinicAddress: string;
+  /**
+     * @minimum -90
+     * @maximum 90
+     */
+  latitude: number;
+  /**
+     * @minimum -180
+     * @maximum 180
+     */
+  longitude: number;
+  /** @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$ */
+  visitingStart: string;
+  /** @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$ */
+  visitingEnd: string;
+  /**
+     * @minLength 2
+     * @maxLength 1000
+     */
+  scientificInterests: string;
+}
+
+export type Doctor = DoctorInput & {
+  id: number;
+  createdAt: string;
+};
+
+export type DoctorBriefingLabel = typeof DoctorBriefingLabel[keyof typeof DoctorBriefingLabel];
+
+
+export const DoctorBriefingLabel = {
+  ملخص_آلي_منظّم: 'ملخص آلي منظّم',
+} as const;
+
+export type DoctorBriefingEngine = typeof DoctorBriefingEngine[keyof typeof DoctorBriefingEngine];
+
+
+export const DoctorBriefingEngine = {
+  rules: 'rules',
+} as const;
+
+export type VisitOutcome = typeof VisitOutcome[keyof typeof VisitOutcome];
+
+
+export const VisitOutcome = {
+  مهتم: 'مهتم',
+  متابعة_لاحقة: 'متابعة لاحقة',
+  غير_مهتم: 'غير مهتم',
+  لم_تتم_الزيارة: 'لم تتم الزيارة',
+} as const;
+
+export type BriefingCitationVerificationStatus = typeof BriefingCitationVerificationStatus[keyof typeof BriefingCitationVerificationStatus];
+
+
+export const BriefingCitationVerificationStatus = {
+  Confirmed_by_clinic_demo_code: 'Confirmed by clinic demo code',
+  Unverified_legacy_report: 'Unverified legacy report',
+} as const;
+
+export interface BriefingCitation {
+  visitId: number;
+  date: string;
+  excerpt: string;
+  verificationStatus: BriefingCitationVerificationStatus;
+}
+
+export interface BriefingTimelineItem {
+  visitId: number;
+  date: string;
+  productId: number;
+  productName: string;
+  outcome: VisitOutcome;
+  /** @nullable */
+  notesExcerpt: string | null;
+  notesWithheld: boolean;
+  citation: BriefingCitation;
+}
+
+export interface BriefingProduct {
+  productId: number;
+  productName: string;
+  recordCount: number;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export type BriefingInterestsSourceField = typeof BriefingInterestsSourceField[keyof typeof BriefingInterestsSourceField];
+
+
+export const BriefingInterestsSourceField = {
+  scientificInterests: 'scientificInterests',
+} as const;
+
+export interface BriefingInterests {
+  /** @nullable */
+  text: string | null;
+  sourceField: BriefingInterestsSourceField;
+  profileCreatedAt: string;
+  visitCitations: BriefingCitation[];
+  notice: string;
+}
+
+export type BriefingRequestState = typeof BriefingRequestState[keyof typeof BriefingRequestState];
+
+
+export const BriefingRequestState = {
+  untracked: 'untracked',
+} as const;
+
+export interface BriefingRequest {
+  quote: string;
+  state: BriefingRequestState;
+  notice: string;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export interface BriefingFollowUp {
+  text: string;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export interface DoctorBriefing {
+  doctorId: number;
+  doctorName: string;
+  label: DoctorBriefingLabel;
+  engine: DoctorBriefingEngine;
+  generativeAiUsed: false;
+  generatedAt: string;
+  totalVisitCount: number;
+  reviewedVisitCount: number;
+  timeline: BriefingTimelineItem[];
+  productsDiscussed: BriefingProduct[];
+  declaredScientificInterests: BriefingInterests;
+  outstandingRequests: BriefingRequest[];
+  suggestedFollowUp: BriefingFollowUp[];
+  privacyOmittedVisitCount: number;
+  limitations: string[];
+}
+
+export interface HandoverDoctor {
+  doctor: Doctor;
+  briefing: DoctorBriefing;
+  missingFields: string[];
+}
+
+export type Visit = ({
+  doctorId: number;
+  productId: number;
+  outcome: VisitOutcome;
+  notes: string;
+  date: string;
+  /** @nullable */
+  pendingVisitId: string | null;
+  verificationStatus: 'Confirmed by clinic demo code' | 'Unverified legacy report';
+}) & ({
+  id: number;
+  doctorName: string;
+  doctorSpecialty: string;
+  doctorRegion: string;
+  /** @nullable */
+  authorRepresentativeId?: number | null;
+  authorName?: string;
+  productName: string;
+  createdAt: string;
+});
+
+export interface HandoverSummary {
+  region: string;
+  assignment: RegionAssignment | null;
+  doctorCount: number;
+  visitCount: number;
+  recentVisits: Visit[];
+  doctors: HandoverDoctor[];
+  reportLimit: number;
+  notice: string;
+}
+
 export type PharmacyRegion = typeof PharmacyRegion[keyof typeof PharmacyRegion];
 
 
@@ -65,120 +324,6 @@ export interface PharmacyComparison {
   unavailableCount: number;
   hasSupplyConstraint: boolean;
   observations: PharmacyObservation[];
-}
-
-export type BriefingCitationVerificationStatus = typeof BriefingCitationVerificationStatus[keyof typeof BriefingCitationVerificationStatus];
-
-
-export const BriefingCitationVerificationStatus = {
-  Confirmed_by_clinic_demo_code: 'Confirmed by clinic demo code',
-  Unverified_legacy_report: 'Unverified legacy report',
-} as const;
-
-export interface BriefingCitation {
-  visitId: number;
-  date: string;
-  excerpt: string;
-  verificationStatus: BriefingCitationVerificationStatus;
-}
-
-export type VisitOutcome = typeof VisitOutcome[keyof typeof VisitOutcome];
-
-
-export const VisitOutcome = {
-  مهتم: 'مهتم',
-  متابعة_لاحقة: 'متابعة لاحقة',
-  غير_مهتم: 'غير مهتم',
-  لم_تتم_الزيارة: 'لم تتم الزيارة',
-} as const;
-
-export interface BriefingTimelineItem {
-  visitId: number;
-  date: string;
-  productId: number;
-  productName: string;
-  outcome: VisitOutcome;
-  /** @nullable */
-  notesExcerpt: string | null;
-  notesWithheld: boolean;
-  citation: BriefingCitation;
-}
-
-export interface BriefingProduct {
-  productId: number;
-  productName: string;
-  recordCount: number;
-  /** @minItems 1 */
-  citations: BriefingCitation[];
-}
-
-export type BriefingInterestsSourceField = typeof BriefingInterestsSourceField[keyof typeof BriefingInterestsSourceField];
-
-
-export const BriefingInterestsSourceField = {
-  scientificInterests: 'scientificInterests',
-} as const;
-
-export interface BriefingInterests {
-  /** @nullable */
-  text: string | null;
-  sourceField: BriefingInterestsSourceField;
-  profileCreatedAt: string;
-  visitCitations: BriefingCitation[];
-  notice: string;
-}
-
-export type BriefingRequestState = typeof BriefingRequestState[keyof typeof BriefingRequestState];
-
-
-export const BriefingRequestState = {
-  untracked: 'untracked',
-} as const;
-
-export interface BriefingRequest {
-  quote: string;
-  state: BriefingRequestState;
-  notice: string;
-  /** @minItems 1 */
-  citations: BriefingCitation[];
-}
-
-export interface BriefingFollowUp {
-  text: string;
-  /** @minItems 1 */
-  citations: BriefingCitation[];
-}
-
-export type DoctorBriefingLabel = typeof DoctorBriefingLabel[keyof typeof DoctorBriefingLabel];
-
-
-export const DoctorBriefingLabel = {
-  ملخص_آلي_منظّم: 'ملخص آلي منظّم',
-} as const;
-
-export type DoctorBriefingEngine = typeof DoctorBriefingEngine[keyof typeof DoctorBriefingEngine];
-
-
-export const DoctorBriefingEngine = {
-  rules: 'rules',
-} as const;
-
-export interface DoctorBriefing {
-  doctorId: number;
-  doctorName: string;
-  label: DoctorBriefingLabel;
-  engine: DoctorBriefingEngine;
-  generativeAiUsed: false;
-  generatedAt: string;
-  totalVisitCount: number;
-  reviewedVisitCount: number;
-  timeline: BriefingTimelineItem[];
-  productsDiscussed: BriefingProduct[];
-  declaredScientificInterests: BriefingInterests;
-  outstandingRequests: BriefingRequest[];
-  suggestedFollowUp: BriefingFollowUp[];
-  privacyOmittedVisitCount: number;
-  limitations: string[];
 }
 
 export interface DemoStartPoint {
@@ -347,53 +492,6 @@ export interface ApiError {
   error: string;
 }
 
-export interface DoctorInput {
-  /**
-     * @minLength 2
-     * @maxLength 100
-     */
-  name: string;
-  /**
-     * @minLength 2
-     * @maxLength 100
-     */
-  specialty: string;
-  /**
-     * @minLength 2
-     * @maxLength 100
-     */
-  region: string;
-  /**
-     * @minLength 3
-     * @maxLength 250
-     */
-  clinicAddress: string;
-  /**
-     * @minimum -90
-     * @maximum 90
-     */
-  latitude: number;
-  /**
-     * @minimum -180
-     * @maximum 180
-     */
-  longitude: number;
-  /** @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$ */
-  visitingStart: string;
-  /** @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$ */
-  visitingEnd: string;
-  /**
-     * @minLength 2
-     * @maxLength 1000
-     */
-  scientificInterests: string;
-}
-
-export type Doctor = DoctorInput & {
-  id: number;
-  createdAt: string;
-};
-
 export interface Product {
   id: number;
   name: string;
@@ -417,24 +515,6 @@ export interface VisitInput {
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   date: string;
 }
-
-export type Visit = ({
-  doctorId: number;
-  productId: number;
-  outcome: VisitOutcome;
-  notes: string;
-  date: string;
-  /** @nullable */
-  pendingVisitId: string | null;
-  verificationStatus: 'Confirmed by clinic demo code' | 'Unverified legacy report';
-}) & {
-  id: number;
-  doctorName: string;
-  doctorSpecialty: string;
-  doctorRegion: string;
-  productName: string;
-  createdAt: string;
-};
 
 export interface CountGroup {
   label: string;
@@ -508,5 +588,13 @@ export type ListVisitsParams = {
  * @minimum 1
  */
 doctorId?: number;
+};
+
+export type GetHandoverSummaryParams = {
+/**
+ * @minLength 1
+ * @maxLength 120
+ */
+region: string;
 };
 

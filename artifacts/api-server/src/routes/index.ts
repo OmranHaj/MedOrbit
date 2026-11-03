@@ -8,6 +8,7 @@ import visitVerificationRouter from "./visit-verification";
 import smartRouteRouter from "./smart-route";
 import doctorBriefingRouter from "./doctor-briefing";
 import pharmacyInsightsRouter from "./pharmacy-insights";
+import handoverRouter from "./handover";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(visitVerificationRouter);
 router.use(smartRouteRouter);
 router.use(doctorBriefingRouter);
 router.use(pharmacyInsightsRouter);
+router.use(handoverRouter);
 
 export default router;

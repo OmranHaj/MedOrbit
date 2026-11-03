@@ -16,11 +16,14 @@ export type Visit = ({
   /** @nullable */
   pendingVisitId: string | null;
   verificationStatus: 'Confirmed by clinic demo code' | 'Unverified legacy report';
-}) & {
+}) & ({
   id: number;
   doctorName: string;
   doctorSpecialty: string;
   doctorRegion: string;
+  /** @nullable */
+  authorRepresentativeId?: number | null;
+  authorName?: string;
   productName: string;
   createdAt: string;
-};
+});

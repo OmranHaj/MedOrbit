@@ -709,6 +709,8 @@ export const ListVisitsResponseItem = zod.object({
   "doctorName": zod.string(),
   "doctorSpecialty": zod.string(),
   "doctorRegion": zod.string(),
+  "authorRepresentativeId": zod.number().int().nullish(),
+  "authorName": zod.string().optional(),
   "productName": zod.string(),
   "createdAt": zod.string()
 }))
@@ -745,6 +747,8 @@ export const CreateVisitResponse = zod.object({
   "doctorName": zod.string(),
   "doctorSpecialty": zod.string(),
   "doctorRegion": zod.string(),
+  "authorRepresentativeId": zod.number().int().nullish(),
+  "authorName": zod.string().optional(),
   "productName": zod.string(),
   "createdAt": zod.string()
 }))
@@ -780,6 +784,8 @@ export const GetDashboardResponse = zod.object({
   "doctorName": zod.string(),
   "doctorSpecialty": zod.string(),
   "doctorRegion": zod.string(),
+  "authorRepresentativeId": zod.number().int().nullish(),
+  "authorName": zod.string().optional(),
   "productName": zod.string(),
   "createdAt": zod.string()
 })))
@@ -793,5 +799,378 @@ export const GetDashboardResponse = zod.object({
 export const HealthCheckResponse = zod.object({
   "status": zod.string()
 })
+
+
+export const GetHandoverStateResponse = zod.object({
+  "representatives": zod.array(zod.object({
+  "id": zod.number().int(),
+  "name": zod.string()
+})),
+  "regions": zod.array(zod.string()),
+  "assignments": zod.array(zod.object({
+  "region": zod.string(),
+  "representativeId": zod.number().int(),
+  "representativeName": zod.string(),
+  "version": zod.number().int(),
+  "updatedAt": zod.string()
+})),
+  "history": zod.array(zod.object({
+  "id": zod.number().int(),
+  "region": zod.string(),
+  "fromRepresentativeId": zod.number().int().nullable(),
+  "fromRepresentativeName": zod.string().nullable(),
+  "toRepresentativeId": zod.number().int(),
+  "toRepresentativeName": zod.string(),
+  "version": zod.number().int(),
+  "createdAt": zod.string()
+})),
+  "demoRepresentativeId": zod.number().int().nullable()
+})
+
+
+
+
+
+export const SwitchHandoverDemoViewBody = zod.object({
+  "representativeId": zod.number().int().min(1).nullable()
+})
+
+export const SwitchHandoverDemoViewResponse = zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "role": zod.enum(['representative', 'clinic_demo']),
+  "expiresAt": zod.string()
+})
+
+
+export const transferRegionBodyRegionMax = 120;
+
+
+
+export const transferRegionBodyExpectedVersionMin = 0;
+
+
+
+export const TransferRegionBody = zod.object({
+  "region": zod.string().min(1).max(transferRegionBodyRegionMax),
+  "fromRepresentativeId": zod.number().int().min(1).nullable(),
+  "toRepresentativeId": zod.number().int().min(1),
+  "expectedVersion": zod.number().int().min(transferRegionBodyExpectedVersionMin)
+})
+
+export const TransferRegionResponse = zod.object({
+  "region": zod.string(),
+  "representativeId": zod.number().int(),
+  "representativeName": zod.string(),
+  "version": zod.number().int(),
+  "updatedAt": zod.string()
+})
+
+
+export const getHandoverSummaryQueryRegionMax = 120;
+
+
+
+export const GetHandoverSummaryQueryParams = zod.object({
+  "region": zod.coerce.string().min(1).max(getHandoverSummaryQueryRegionMax)
+})
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneNameMin = 2;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneNameMax = 100;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneSpecialtyMin = 2;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneSpecialtyMax = 100;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneRegionMin = 2;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneRegionMax = 100;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneClinicAddressMin = 3;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneClinicAddressMax = 250;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneLatitudeMin = -90;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneLatitudeMax = 90;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneLongitudeMin = -180;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneLongitudeMax = 180;
+
+export const getHandoverSummaryResponseDoctorsItemDoctorOneVisitingStartRegExp = new RegExp('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+export const getHandoverSummaryResponseDoctorsItemDoctorOneVisitingEndRegExp = new RegExp('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+export const getHandoverSummaryResponseDoctorsItemDoctorOneScientificInterestsMin = 2;
+export const getHandoverSummaryResponseDoctorsItemDoctorOneScientificInterestsMax = 1000;
+
+
+
+
+
+
+export const GetHandoverSummaryResponse = zod.object({
+  "region": zod.string(),
+  "assignment": zod.union([zod.object({
+  "region": zod.string(),
+  "representativeId": zod.number().int(),
+  "representativeName": zod.string(),
+  "version": zod.number().int(),
+  "updatedAt": zod.string()
+}),zod.null()]),
+  "doctorCount": zod.number().int(),
+  "visitCount": zod.number().int(),
+  "recentVisits": zod.array(zod.object({
+  "doctorId": zod.number().int(),
+  "productId": zod.number().int(),
+  "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
+  "notes": zod.string(),
+  "date": zod.string(),
+  "pendingVisitId": zod.string().nullable(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+}).and(zod.object({
+  "id": zod.number().int(),
+  "doctorName": zod.string(),
+  "doctorSpecialty": zod.string(),
+  "doctorRegion": zod.string(),
+  "authorRepresentativeId": zod.number().int().nullish(),
+  "authorName": zod.string().optional(),
+  "productName": zod.string(),
+  "createdAt": zod.string()
+}))),
+  "doctors": zod.array(zod.object({
+  "doctor": zod.object({
+  "name": zod.string().min(getHandoverSummaryResponseDoctorsItemDoctorOneNameMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneNameMax),
+  "specialty": zod.string().min(getHandoverSummaryResponseDoctorsItemDoctorOneSpecialtyMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneSpecialtyMax),
+  "region": zod.string().min(getHandoverSummaryResponseDoctorsItemDoctorOneRegionMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneRegionMax),
+  "clinicAddress": zod.string().min(getHandoverSummaryResponseDoctorsItemDoctorOneClinicAddressMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneClinicAddressMax),
+  "latitude": zod.number().min(getHandoverSummaryResponseDoctorsItemDoctorOneLatitudeMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneLatitudeMax),
+  "longitude": zod.number().min(getHandoverSummaryResponseDoctorsItemDoctorOneLongitudeMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneLongitudeMax),
+  "visitingStart": zod.string().regex(getHandoverSummaryResponseDoctorsItemDoctorOneVisitingStartRegExp),
+  "visitingEnd": zod.string().regex(getHandoverSummaryResponseDoctorsItemDoctorOneVisitingEndRegExp),
+  "scientificInterests": zod.string().min(getHandoverSummaryResponseDoctorsItemDoctorOneScientificInterestsMin).max(getHandoverSummaryResponseDoctorsItemDoctorOneScientificInterestsMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "createdAt": zod.string()
+})),
+  "briefing": zod.object({
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "label": zod.enum(['ملخص آلي منظّم']),
+  "engine": zod.enum(['rules']),
+  "generativeAiUsed": zod.literal(false),
+  "generatedAt": zod.string(),
+  "totalVisitCount": zod.number().int(),
+  "reviewedVisitCount": zod.number().int(),
+  "timeline": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
+  "notesExcerpt": zod.string().nullable(),
+  "notesWithheld": zod.boolean(),
+  "citation": zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})
+})),
+  "productsDiscussed": zod.array(zod.object({
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "recordCount": zod.number().int(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "declaredScientificInterests": zod.object({
+  "text": zod.string().nullable(),
+  "sourceField": zod.enum(['scientificInterests']),
+  "profileCreatedAt": zod.string(),
+  "visitCitations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})),
+  "notice": zod.string()
+}),
+  "outstandingRequests": zod.array(zod.object({
+  "quote": zod.string(),
+  "state": zod.enum(['untracked']),
+  "notice": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "suggestedFollowUp": zod.array(zod.object({
+  "text": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "privacyOmittedVisitCount": zod.number().int(),
+  "limitations": zod.array(zod.string())
+}),
+  "missingFields": zod.array(zod.string())
+})),
+  "reportLimit": zod.number().int(),
+  "notice": zod.string()
+})
+
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneNameMin = 2;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneNameMax = 100;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneSpecialtyMin = 2;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneSpecialtyMax = 100;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneRegionMin = 2;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneRegionMax = 100;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneClinicAddressMin = 3;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneClinicAddressMax = 250;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneLatitudeMin = -90;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneLatitudeMax = 90;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneLongitudeMin = -180;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneLongitudeMax = 180;
+
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneVisitingStartRegExp = new RegExp('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneVisitingEndRegExp = new RegExp('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneScientificInterestsMin = 2;
+export const getMyHandoverDoctorsResponseDoctorsItemDoctorOneScientificInterestsMax = 1000;
+
+
+
+
+
+
+export const GetMyHandoverDoctorsResponseItem = zod.object({
+  "region": zod.string(),
+  "assignment": zod.union([zod.object({
+  "region": zod.string(),
+  "representativeId": zod.number().int(),
+  "representativeName": zod.string(),
+  "version": zod.number().int(),
+  "updatedAt": zod.string()
+}),zod.null()]),
+  "doctorCount": zod.number().int(),
+  "visitCount": zod.number().int(),
+  "recentVisits": zod.array(zod.object({
+  "doctorId": zod.number().int(),
+  "productId": zod.number().int(),
+  "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
+  "notes": zod.string(),
+  "date": zod.string(),
+  "pendingVisitId": zod.string().nullable(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+}).and(zod.object({
+  "id": zod.number().int(),
+  "doctorName": zod.string(),
+  "doctorSpecialty": zod.string(),
+  "doctorRegion": zod.string(),
+  "authorRepresentativeId": zod.number().int().nullish(),
+  "authorName": zod.string().optional(),
+  "productName": zod.string(),
+  "createdAt": zod.string()
+}))),
+  "doctors": zod.array(zod.object({
+  "doctor": zod.object({
+  "name": zod.string().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneNameMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneNameMax),
+  "specialty": zod.string().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneSpecialtyMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneSpecialtyMax),
+  "region": zod.string().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneRegionMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneRegionMax),
+  "clinicAddress": zod.string().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneClinicAddressMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneClinicAddressMax),
+  "latitude": zod.number().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneLatitudeMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneLatitudeMax),
+  "longitude": zod.number().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneLongitudeMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneLongitudeMax),
+  "visitingStart": zod.string().regex(getMyHandoverDoctorsResponseDoctorsItemDoctorOneVisitingStartRegExp),
+  "visitingEnd": zod.string().regex(getMyHandoverDoctorsResponseDoctorsItemDoctorOneVisitingEndRegExp),
+  "scientificInterests": zod.string().min(getMyHandoverDoctorsResponseDoctorsItemDoctorOneScientificInterestsMin).max(getMyHandoverDoctorsResponseDoctorsItemDoctorOneScientificInterestsMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "createdAt": zod.string()
+})),
+  "briefing": zod.object({
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "label": zod.enum(['ملخص آلي منظّم']),
+  "engine": zod.enum(['rules']),
+  "generativeAiUsed": zod.literal(false),
+  "generatedAt": zod.string(),
+  "totalVisitCount": zod.number().int(),
+  "reviewedVisitCount": zod.number().int(),
+  "timeline": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
+  "notesExcerpt": zod.string().nullable(),
+  "notesWithheld": zod.boolean(),
+  "citation": zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})
+})),
+  "productsDiscussed": zod.array(zod.object({
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "recordCount": zod.number().int(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "declaredScientificInterests": zod.object({
+  "text": zod.string().nullable(),
+  "sourceField": zod.enum(['scientificInterests']),
+  "profileCreatedAt": zod.string(),
+  "visitCitations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})),
+  "notice": zod.string()
+}),
+  "outstandingRequests": zod.array(zod.object({
+  "quote": zod.string(),
+  "state": zod.enum(['untracked']),
+  "notice": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "suggestedFollowUp": zod.array(zod.object({
+  "text": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "privacyOmittedVisitCount": zod.number().int(),
+  "limitations": zod.array(zod.string())
+}),
+  "missingFields": zod.array(zod.string())
+})),
+  "reportLimit": zod.number().int(),
+  "notice": zod.string()
+})
+export const GetMyHandoverDoctorsResponse = zod.array(GetMyHandoverDoctorsResponseItem)
 
 

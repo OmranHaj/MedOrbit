@@ -290,6 +290,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /handover:
+    get:
+      operationId: getHandoverState
+      responses:
+        "200":
+          description: Fictional representatives, current owners and immutable transfer history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HandoverState" }
+  /handover/demo-view:
+    post:
+      operationId: switchHandoverDemoView
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HandoverViewInput" }
+      responses:
+        "200":
+          description: New server-issued demo session, not production authorization
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoSession" }
+  /handover/assignments:
+    post:
+      operationId: transferRegion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegionTransferInput" }
+      responses:
+        "200":
+          description: Atomic assignment and appended history; conflict returns 409
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RegionAssignment" }
+  /handover/summary:
+    get:
+      operationId: getHandoverSummary
+      parameters:
+        - { name: region, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 120 } }
+      responses:
+        "200":
+          description: Saved regional knowledge, not invented or generative
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HandoverSummary" }
+  /handover/my-doctors:
+    get:
+      operationId: getMyHandoverDoctors
+      responses:
+        "200":
+          description: Current demo representative's assigned regions and preserved knowledge
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/HandoverSummary" }
 components:
   responses:
     BadRequest:
@@ -303,6 +362,79 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    HandoverViewInput:
+      type: object
+      additionalProperties: false
+      required: [representativeId]
+      properties:
+        representativeId: { type: [integer, "null"], minimum: 1 }
+    RegionTransferInput:
+      type: object
+      additionalProperties: false
+      required: [region, fromRepresentativeId, toRepresentativeId, expectedVersion]
+      properties:
+        region: { type: string, minLength: 1, maxLength: 120 }
+        fromRepresentativeId: { type: [integer, "null"], minimum: 1 }
+        toRepresentativeId: { type: integer, minimum: 1 }
+        expectedVersion: { type: integer, minimum: 0 }
+    Representative:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    RegionAssignment:
+      type: object
+      required: [region, representativeId, representativeName, version, updatedAt]
+      properties:
+        region: { type: string }
+        representativeId: { type: integer }
+        representativeName: { type: string }
+        version: { type: integer }
+        updatedAt: { type: string }
+    RegionTransfer:
+      type: object
+      required: [id, region, fromRepresentativeId, fromRepresentativeName, toRepresentativeId, toRepresentativeName, version, createdAt]
+      properties:
+        id: { type: integer }
+        region: { type: string }
+        fromRepresentativeId: { type: [integer, "null"] }
+        fromRepresentativeName: { type: [string, "null"] }
+        toRepresentativeId: { type: integer }
+        toRepresentativeName: { type: string }
+        version: { type: integer }
+        createdAt: { type: string }
+    HandoverState:
+      type: object
+      required: [representatives, regions, assignments, history, demoRepresentativeId]
+      properties:
+        representatives: { type: array, items: { $ref: "#/components/schemas/Representative" } }
+        regions: { type: array, items: { type: string } }
+        assignments: { type: array, items: { $ref: "#/components/schemas/RegionAssignment" } }
+        history: { type: array, items: { $ref: "#/components/schemas/RegionTransfer" } }
+        demoRepresentativeId: { type: [integer, "null"] }
+    HandoverDoctor:
+      type: object
+      required: [doctor, briefing, missingFields]
+      properties:
+        doctor: { $ref: "#/components/schemas/Doctor" }
+        briefing: { $ref: "#/components/schemas/DoctorBriefing" }
+        missingFields: { type: array, items: { type: string } }
+    HandoverSummary:
+      type: object
+      required: [region, assignment, doctorCount, visitCount, recentVisits, doctors, reportLimit, notice]
+      properties:
+        region: { type: string }
+        assignment:
+          oneOf:
+            - { $ref: "#/components/schemas/RegionAssignment" }
+            - { type: "null" }
+        doctorCount: { type: integer }
+        visitCount: { type: integer }
+        recentVisits: { type: array, items: { $ref: "#/components/schemas/Visit" } }
+        doctors: { type: array, items: { $ref: "#/components/schemas/HandoverDoctor" } }
+        reportLimit: { type: integer }
+        notice: { type: string }
     PharmacyRegion:
       type: string
       enum: ["الإقليم التجريبي أ", "الإقليم التجريبي ب", "الإقليم التجريبي ج"]
@@ -604,6 +736,8 @@ components:
             doctorName: { type: string }
             doctorSpecialty: { type: string }
             doctorRegion: { type: string }
+            authorRepresentativeId: { type: [integer, "null"] }
+            authorName: { type: string }
             productName: { type: string }
             createdAt: { type: string }
     CountGroup:
