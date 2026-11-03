@@ -7,8 +7,10 @@ import {
   getGetHandoverStateQueryKey,
   getGetHandoverSummaryQueryKey,
   getGetMyHandoverDoctorsQueryKey,
+  getGetDoctorMapQueryKey,
   VisitOutcome,
 } from "@workspace/api-client-react";
+import { clearTourPlan } from "@/hooks/use-tour";
 
 export const nf = new Intl.NumberFormat("ar-EG");
 export const fmtNum = (n: number) => nf.format(n);
@@ -50,7 +52,9 @@ export function errMsg(e: unknown, fallback = "حدث خطأ غير متوقع. 
 }
 
 export async function invalidateDoctors(qc: QueryClient, id?: number) {
+  clearTourPlan();
   await Promise.all([
+    qc.invalidateQueries({ queryKey: getGetDoctorMapQueryKey() }),
     qc.invalidateQueries({ queryKey: getListDoctorsQueryKey() }),
     id ? qc.invalidateQueries({ queryKey: getGetDoctorQueryKey(id) }) : Promise.resolve(),
     qc.invalidateQueries({ queryKey: getListVisitsQueryKey() }),

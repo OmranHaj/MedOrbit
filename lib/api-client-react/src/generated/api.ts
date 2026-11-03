@@ -41,6 +41,7 @@ import type {
   ListClinicDemoVisitsParams,
   ListDoctorsParams,
   ListVisitsParams,
+  MapDoctor,
   NotFoundResponse,
   PendingVisit,
   PendingVisitInput,
@@ -435,6 +436,101 @@ export function useGetDoctorBriefing<TData = Awaited<ReturnType<typeof getDoctor
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetDoctorBriefingQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetDoctorMapUrl = () => {
+
+
+
+
+  return `/api/doctor-map`
+}
+
+export const getDoctorMap = async ( options?: Parameters<typeof customFetch>[1]): Promise<MapDoctor[]> => {
+
+  return customFetch<MapDoctor[]>(getGetDoctorMapUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDoctorMapQueryKey = () => {
+    return [
+    `/api/doctor-map`
+    ] as const;
+    }
+
+
+export const getGetDoctorMapQueryOptions = <TData = Awaited<ReturnType<typeof getDoctorMap>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDoctorMapQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDoctorMap>>> = ({ signal }) => getDoctorMap({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDoctorMapQueryResult = NonNullable<Awaited<ReturnType<typeof getDoctorMap>>>
+export type GetDoctorMapQueryError = ErrorType<unknown>
+
+
+export function useGetDoctorMap<TData = Awaited<ReturnType<typeof getDoctorMap>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDoctorMap>>,
+          TError,
+          Awaited<ReturnType<typeof getDoctorMap>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDoctorMap<TData = Awaited<ReturnType<typeof getDoctorMap>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDoctorMap>>,
+          TError,
+          Awaited<ReturnType<typeof getDoctorMap>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDoctorMap<TData = Awaited<ReturnType<typeof getDoctorMap>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDoctorMap<TData = Awaited<ReturnType<typeof getDoctorMap>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorMap>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDoctorMapQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

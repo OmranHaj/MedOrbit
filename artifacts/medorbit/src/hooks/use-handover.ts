@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { clearTour } from "@/hooks/use-tour";
 import {
   useGetHandoverState,
   useGetHandoverSummary,
@@ -64,6 +65,7 @@ export function useSwitchView() {
     try {
       await qc.cancelQueries();
       await m.mutateAsync({ data: { representativeId } });
+      clearTour();
       // Reset active AND inactive observers; don't leave detached A observers showing A under B.
       await qc.resetQueries();
     } finally { setSwitching(false); }

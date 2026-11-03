@@ -19,6 +19,7 @@ import ClinicDemo from '@/pages/clinic-demo';
 import PharmacyInsights from '@/pages/pharmacy-insights';
 import Handover from '@/pages/handover';
 import MyRegion from '@/pages/my-region';
+import DoctorMapPage from '@/pages/doctor-map';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnMount: true, refetchOnWindowFocus: true, retry: 1 } },
@@ -50,6 +51,7 @@ function ShellRoutes() {
           <Route path="/pharmacy-insights" component={PharmacyInsights} />
           <Route path="/handover" component={Handover} />
           <Route path="/my-region" component={MyRegion} />
+          <Route path="/doctor-map" component={DoctorMapPage} />
           <Route component={NotFound} />
         </Switch>
       </RoutedErrorBoundary>

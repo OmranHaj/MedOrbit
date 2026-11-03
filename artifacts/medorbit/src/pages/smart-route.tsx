@@ -1,31 +1,42 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { useGetSmartRouteOptions, usePlanSmartRoute, type SmartRouteInput, type SmartRoutePlan } from "@workspace/api-client-react";
-import { AlertTriangle, Clock, Loader2, MapPin, Navigation, RefreshCw } from "lucide-react";
+import { useGetSmartRouteOptions, usePlanSmartRoute, useGetDoctorMap, getGetDoctorMapQueryKey, type SmartRouteInput, type SmartRoutePlan } from "@workspace/api-client-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Clock, Loader2, MapPin, Navigation, RefreshCw, X } from "lucide-react";
+import { useTour, setTourSelection, publishTour, clearTourPlan, validMapCoordinates, validMapHours } from "@/hooks/use-tour";
+import { MAP_QUERY } from "@/lib/map-tour";
+import { PlannerMap } from "@/components/map/lazy-map";
 import { PageHeader, Panel, Field, Btn, ErrorState, Skel, EmptyState, Banner } from "@/components/ui-kit";
 import { errMsg } from "@/lib/format";
 
-type Errs = Partial<Record<"region" | "startPointId" | "startTime" | "visitDurationMinutes" | "travelSpeedKmh", string>>;
+type Errs = Partial<Record<"region" | "startPointId" | "startTime" | "visitDurationMinutes" | "travelSpeedKmh" | "doctorIds", string>>;
 
 const TIME_RE = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
 
 function sameInput(a: SmartRouteInput | null, b: SmartRouteInput) {
-  return !!a && a.region === b.region && a.startPointId === b.startPointId && a.startTime === b.startTime && a.visitDurationMinutes === b.visitDurationMinutes && a.travelSpeedKmh === b.travelSpeedKmh;
+  return !!a && a.region === b.region && a.startPointId === b.startPointId && a.startTime === b.startTime && a.visitDurationMinutes === b.visitDurationMinutes && a.travelSpeedKmh === b.travelSpeedKmh &&
+    JSON.stringify(a.doctorIds ?? null) === JSON.stringify(b.doctorIds ?? null) && !!a.preserveSelectionOrder === !!b.preserveSelectionOrder;
 }
 
 export default function SmartRoute() {
   const opts = useGetSmartRouteOptions();
   const m = usePlanSmartRoute();
-  const [region, setRegion] = useState("");
-  const [startPointId, setStartPointId] = useState("");
-  const [startTime, setStartTime] = useState("09:00");
-  const [duration, setDuration] = useState("15");
-  const [speed, setSpeed] = useState("25");
+  const tour = useTour();
+  const mapQ = useGetDoctorMap({ query: { queryKey: getGetDoctorMapQueryKey(), ...MAP_QUERY } });
+  const shared = useRef(tour.plan && tour.planInput ? { plan: tour.plan, input: tour.planInput } : null).current;
+  const [region, setRegion] = useState(shared?.input.region ?? "");
+  const [startPointId, setStartPointId] = useState(shared?.input.startPointId ?? "");
+  const [startTime, setStartTime] = useState(shared?.input.startTime ?? "09:00");
+  const [duration, setDuration] = useState(String(shared?.input.visitDurationMinutes ?? 15));
+  const [speed, setSpeed] = useState(String(shared?.input.travelSpeedKmh ?? 25));
+  const [useSelected, setUseSelected] = useState(() => shared ? !!shared.input.doctorIds : tour.selectedIds.length > 0);
+  const [manual, setManual] = useState(!!shared?.input.preserveSelectionOrder);
   const [errs, setErrs] = useState<Errs>({});
-  const [plan, setPlan] = useState<SmartRoutePlan | null>(null);
-  const [planInput, setPlanInput] = useState<SmartRouteInput | null>(null);
+  const [plan, setPlan] = useState<SmartRoutePlan | null>(shared?.plan ?? null);
+  const [planInput, setPlanInput] = useState<SmartRouteInput | null>(shared?.input ?? null);
   const [submitErr, setSubmitErr] = useState<string | null>(null);
-  const inited = useRef(false);
+  const inited = useRef(!!shared);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
     const title = document.title;
     const metas = [
@@ -48,15 +59,30 @@ export default function SmartRoute() {
   useEffect(() => {
     const d = opts.data;
     if (!d || inited.current) return;
+    if (useSelected && tour.selectedIds.length && !mapQ.data) return;
     inited.current = true;
-    setRegion(d.regions.includes(d.demoRegion) ? d.demoRegion : d.regions[0] ?? "");
+    const selectedRegion = useSelected ? mapQ.data?.find(item => item.id === tour.selectedIds[0])?.region : undefined;
+    setRegion(selectedRegion ?? (d.regions.includes(d.demoRegion) ? d.demoRegion : d.regions[0] ?? ""));
     setStartPointId(d.startPoints[0]?.id ?? "");
     setDuration(String(d.defaultVisitDurationMinutes));
     setSpeed(String(d.defaultTravelSpeedKmh));
-  }, [opts.data]);
+  }, [opts.data, mapQ.data, useSelected, tour.selectedIds]);
 
-  const current: SmartRouteInput = { region, startPointId, startTime, visitDurationMinutes: Number(duration), travelSpeedKmh: Number(speed) };
+  const current: SmartRouteInput = { region, startPointId, startTime, visitDurationMinutes: Number(duration), travelSpeedKmh: Number(speed),
+    ...(useSelected ? { doctorIds: tour.selectedIds, preserveSelectionOrder: manual } : {}) };
+  const latestInput = useRef(current);
+  latestInput.current = current;
   const stale = !!plan && !sameInput(planInput, current);
+  useEffect(() => { if (stale) clearTourPlan(); }, [stale]);
+  const nameOf = (id: number) => mapQ.data?.find((d) => d.id === id)?.name ?? `طبيب غير معروف (رقم ${id})`;
+  function move(i: number, dir: -1 | 1) {
+    const ids = [...tour.selectedIds];
+    const j = i + dir;
+    if (j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    setManual(true);
+    setTourSelection(ids);
+  }
 
   function validate(): Errs {
     const e: Errs = {};
@@ -67,6 +93,22 @@ export default function SmartRoute() {
     if (!/^\d+$/.test(duration) || d < 1 || d > 120) e.visitDurationMinutes = "عدد صحيح من 1 إلى 120 دقيقة.";
     const s = Number(speed);
     if (speed.trim() === "" || !Number.isFinite(s) || s < 1 || s > 120) e.travelSpeedKmh = "قيمة من 1 إلى 120 كم/ساعة.";
+    if (useSelected) {
+      const ids = tour.selectedIds;
+      if (!ids.length) e.doctorIds = "لم تحدد أي طبيب. اختر أطباء من الخريطة أو ألغِ خيار «الأطباء المحددون فقط».";
+      else if (!mapQ.data) e.doctorIds = "تعذّر التحقق من الأطباء المحددين لأن بيانات الخريطة لم تُحمَّل. أعد المحاولة.";
+      else {
+        const problems: string[] = [];
+        for (const id of ids) {
+          const d = mapQ.data.find((x) => x.id === id);
+          if (!d) problems.push(`رقم ${id}: غير موجود في السجلات`);
+          else if (!validMapCoordinates(d)) problems.push(`${d.name}: الموقع غير محدد`);
+          else if (!validMapHours(d)) problems.push(`${d.name}: أوقات الاستقبال غير صالحة`);
+          else if (d.region !== region) problems.push(`${d.name}: من منطقة «${d.region}» وليس «${region}»`);
+        }
+        if (problems.length) e.doctorIds = `لا يمكن الحساب قبل تصحيح الاختيار: ${problems.join("؛ ")}.`;
+      }
+    }
     return e;
   }
 
@@ -79,6 +121,9 @@ export default function SmartRoute() {
     setSubmitErr(null);
     try {
       const res = await m.mutateAsync({ data: input });
+      const fresh = await mapQ.refetch();
+      if (!mounted.current) return;
+      if (sameInput(latestInput.current, input)) publishTour(res, input, fresh.isSuccess ? fresh.data : undefined);
       setPlan(res);
       setPlanInput(input);
     } catch (err) {
@@ -96,7 +141,7 @@ export default function SmartRoute() {
 
       <div role="note" data-testid="text-route-caveat" className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-50 p-4 text-sm text-amber-900">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-        <p className="min-w-0"><strong>تقدير تقريبي:</strong> المسافات خطوط مستقيمة على سطح الأرض (صيغة Haversine)، والسرعة ثابتة كما تُدخلها، ويُقرَّب زمن التنقل إلى الدقيقة الأعلى. لا طرق ولا ازدحام مباشر ولا GPS، ولا يوجد ضمان بأن الترتيب هو الأفضل على الإطلاق. الخريطة غير معروضة عمداً. تُفقد النتيجة عند إعادة تحميل الصفحة ويجب إعادة الحساب.</p>
+        <p className="min-w-0"><strong>تقدير تقريبي:</strong> المسافات خطوط مستقيمة على سطح الأرض (صيغة Haversine)، والسرعة ثابتة كما تُدخلها، ويُقرَّب زمن التنقل إلى الدقيقة الأعلى. لا طرق ولا ازدحام مباشر ولا GPS، ولا يوجد ضمان بأن الترتيب هو الأفضل على الإطلاق. تظهر الجولة المحسوبة على الخريطة بخطوط مستقيمة تقريبية لا تمثل طرق القيادة. تُفقد النتيجة عند إعادة تحميل الصفحة ويجب إعادة الحساب؛ يُحفظ اختيار الأطباء فقط خلال الجلسة.</p>
       </div>
 
       {opts.isLoading ? (
@@ -108,7 +153,7 @@ export default function SmartRoute() {
       ) : (
         <>
           <Panel className="p-5">
-            <form onSubmit={submit} noValidate className="grid gap-4 sm:grid-cols-2">
+            <form onSubmit={submit} noValidate className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="المنطقة" htmlFor="region" error={errs.region} hint={`يُستخدم الأطباء المحفوظون في هذه المنطقة تماماً (حتى ${opts.data.maxDoctorsPerRegion} طبيب).`}>
                 <select id="region" data-testid="select-region" className="field-input" value={region} onChange={(e) => setRegion(e.target.value)}>
                   {opts.data.regions.map((r) => <option key={r} value={r}>{r}{r === opts.data!.demoRegion ? " (تجريبية)" : ""}</option>)}
@@ -129,6 +174,35 @@ export default function SmartRoute() {
               <Field label="سرعة التنقل المفترضة (كم/ساعة)" htmlFor="travelSpeedKmh" error={errs.travelSpeedKmh} hint="من 1 إلى 120 كم/ساعة.">
                 <input id="travelSpeedKmh" data-testid="input-travel-speed" type="number" inputMode="decimal" min={1} max={120} step="any" className="field-input" value={speed} onChange={(e) => setSpeed(e.target.value)} />
               </Field>
+              <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-3 sm:col-span-2" data-testid="section-route-selection">
+                <label className="flex min-h-[44px] items-center gap-3 text-sm font-semibold text-primary">
+                  <input type="checkbox" className="h-5 w-5 accent-[hsl(var(--accent))]" checked={useSelected} onChange={(e) => setUseSelected(e.target.checked)} data-testid="checkbox-use-selected" />
+                  الأطباء المحددون فقط ({tour.selectedIds.length})
+                </label>
+                {useSelected && (
+                  <>
+                    <label className="flex min-h-[44px] items-center gap-3 text-sm text-primary">
+                      <input type="checkbox" className="h-5 w-5 accent-[hsl(var(--accent))]" checked={manual} onChange={(e) => setManual(e.target.checked)} data-testid="checkbox-manual-order" />
+                      ترتيب يدوي: احسب بالترتيب أدناه دون إعادة ترتيب
+                    </label>
+                    {tour.selectedIds.length === 0 ? <p className="text-xs text-muted-foreground">لا يوجد أطباء محددون بعد.</p> : (
+                      <ol className="space-y-1.5" data-testid="list-selected-doctors">
+                        {tour.selectedIds.map((id, i) => (
+                          <li key={id} className="flex min-w-0 items-center gap-1 rounded-lg bg-card p-1.5 text-sm" data-testid={`row-selected-${id}`}>
+                            <span className="w-6 shrink-0 text-center text-xs text-muted-foreground">{i + 1}</span>
+                            <span className="min-w-0 flex-1 truncate">{nameOf(id)}</span>
+                            <button type="button" aria-label="تحريك لأعلى" disabled={i === 0} onClick={() => move(i, -1)} data-testid={`button-move-up-${id}`} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg disabled:opacity-30"><ArrowUp className="h-4 w-4" /></button>
+                            <button type="button" aria-label="تحريك لأسفل" disabled={i === tour.selectedIds.length - 1} onClick={() => move(i, 1)} data-testid={`button-move-down-${id}`} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
+                            <button type="button" aria-label="إزالة" onClick={() => setTourSelection(tour.selectedIds.filter((x) => x !== id))} data-testid={`button-remove-selected-${id}`} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-destructive"><X className="h-4 w-4" /></button>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </>
+                )}
+                {errs.doctorIds && <p className="text-xs font-medium text-destructive" data-testid="error-doctorIds">{errs.doctorIds}</p>}
+                <Link href="/doctor-map" data-testid="link-route-map" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-accent"><MapPin className="h-4 w-4" />اختيار الأطباء من الخريطة</Link>
+              </div>
               <div className="flex items-end">
                 <Btn type="submit" variant="teal" disabled={m.isPending} data-testid="button-plan-route" className="w-full sm:w-auto">
                   {m.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
@@ -146,6 +220,9 @@ export default function SmartRoute() {
             {m.isPending && <Panel className="space-y-3 p-5"><Skel className="h-16" /><Skel className="h-24" /><Skel className="h-24" /></Panel>}
             {!m.isPending && plan && planInput && (
               <Results plan={plan} stale={stale} onRecalc={() => submit({ preventDefault() {} } as React.FormEvent)} />
+            )}
+            {!m.isPending && plan && !stale && tour.plan === plan && (
+              <div className="mt-5"><PlannerMap plan={plan} input={tour.planInput} source={tour.source} doctors={mapQ.data} /></div>
             )}
           </div>
         </>

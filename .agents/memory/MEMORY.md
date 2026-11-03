@@ -1,2 +1,3 @@
 - [GitHub upload access](github-upload-access.md) — use Replit’s secure Git provider proxy when connector access is unavailable; never extract tokens.
 - [Named OpenAPI inputs](named-openapi-inputs.md) — inline request objects can collide in generated Zod/type exports; use named component input schemas.
+- [RTL grid overflow](rtl-grid-overflow.md) — implicit mobile tracks can expand around truncated doctor rows; inspect track sizes and fix minima, not body overflow.

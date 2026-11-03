@@ -38,6 +38,7 @@ export * from './healthStatus';
 export * from './listClinicDemoVisitsParams';
 export * from './listDoctorsParams';
 export * from './listVisitsParams';
+export * from './mapDoctor';
 export * from './notFoundResponse';
 export * from './pendingVisit';
 export * from './pendingVisitInput';

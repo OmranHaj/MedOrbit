@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus, BarChart3, ArrowLeftRight, MapPinned } from "lucide-react";
+import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus, BarChart3, ArrowLeftRight, MapPinned, Map as MapIcon } from "lucide-react";
 
 const SECONDARY = [
   { href: "/handover", label: "تسليم المنطقة", icon: ArrowLeftRight, id: "handover" },
   { href: "/my-region", label: "منطقتي", icon: MapPinned, id: "my-region" },
+  { href: "/doctor-map", label: "خريطة الأطباء", icon: MapIcon, id: "doctor-map" },
 ];
 
 const NAV = [
@@ -71,10 +72,10 @@ export function Shell({ children }: { children: ReactNode }) {
         <Link href="/visits/new" data-testid="link-mobile-new-visit" className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-bold text-accent-foreground"><Plus className="h-4 w-4" />زيارة</Link>
       </header>
 
-      <nav aria-label="تسليم المناطق" className="flex gap-2 overflow-x-auto border-b border-border bg-background px-4 py-2 lg:hidden">
+      <nav aria-label="روابط إضافية" className="flex min-w-0 flex-wrap gap-2 border-b border-border bg-background px-4 py-2 lg:hidden">
         {SECONDARY.map((n) => { const a = active(loc, n.href); return (
           <Link key={n.href} href={n.href} data-testid={`link-sub-${n.id}`} aria-current={a ? "page" : undefined}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${a ? "border-accent bg-secondary text-secondary-foreground" : "border-border bg-card text-muted-foreground"}`}>
+            className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${a ? "border-accent bg-secondary text-secondary-foreground" : "border-border bg-card text-muted-foreground"}`}>
             <n.icon className="h-3.5 w-3.5" />{n.label}
           </Link>); })}
       </nav>

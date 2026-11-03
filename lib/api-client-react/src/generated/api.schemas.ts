@@ -343,6 +343,22 @@ export interface SmartRouteOptions {
   assumptions: string[];
 }
 
+export interface MapDoctor {
+  id: number;
+  name: string;
+  specialty: string;
+  region: string;
+  clinicAddress: string;
+  /** @nullable */
+  latitude: number | null;
+  /** @nullable */
+  longitude: number | null;
+  /** @nullable */
+  visitingStart: string | null;
+  /** @nullable */
+  visitingEnd: string | null;
+}
+
 export interface SmartRouteInput {
   /**
      * @minLength 2
@@ -366,6 +382,13 @@ export interface SmartRouteInput {
      * @maximum 120
      */
   travelSpeedKmh?: number;
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.minimum 1
+     */
+  doctorIds?: number[];
+  preserveSelectionOrder?: boolean;
 }
 
 export interface SmartRouteStop {

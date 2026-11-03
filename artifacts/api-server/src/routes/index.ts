@@ -9,6 +9,7 @@ import smartRouteRouter from "./smart-route";
 import doctorBriefingRouter from "./doctor-briefing";
 import pharmacyInsightsRouter from "./pharmacy-insights";
 import handoverRouter from "./handover";
+import doctorMapRouter from "./doctor-map";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(smartRouteRouter);
 router.use(doctorBriefingRouter);
 router.use(pharmacyInsightsRouter);
 router.use(handoverRouter);
+router.use(doctorMapRouter);
 
 export default router;

@@ -219,6 +219,20 @@ export const GetDoctorBriefingResponse = zod.object({
 })
 
 
+export const GetDoctorMapResponseItem = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "specialty": zod.string(),
+  "region": zod.string(),
+  "clinicAddress": zod.string(),
+  "latitude": zod.number().nullable(),
+  "longitude": zod.number().nullable(),
+  "visitingStart": zod.string().nullable(),
+  "visitingEnd": zod.string().nullable()
+})
+export const GetDoctorMapResponse = zod.array(GetDoctorMapResponseItem)
+
+
 export const GetSmartRouteOptionsResponse = zod.object({
   "regions": zod.array(zod.string()),
   "startPoints": zod.array(zod.object({
@@ -248,13 +262,18 @@ export const planSmartRouteBodyTravelSpeedKmhDefault = 25;
 export const planSmartRouteBodyTravelSpeedKmhMax = 120;
 
 
+export const planSmartRouteBodyDoctorIdsMax = 100;
+
+export const planSmartRouteBodyPreserveSelectionOrderDefault = false;
 
 export const PlanSmartRouteBody = zod.object({
   "region": zod.string().min(planSmartRouteBodyRegionMin).max(planSmartRouteBodyRegionMax),
   "startPointId": zod.string().min(1).max(planSmartRouteBodyStartPointIdMax),
   "startTime": zod.string().regex(planSmartRouteBodyStartTimeRegExp),
   "visitDurationMinutes": zod.number().int().min(1).max(planSmartRouteBodyVisitDurationMinutesMax).default(planSmartRouteBodyVisitDurationMinutesDefault),
-  "travelSpeedKmh": zod.number().min(1).max(planSmartRouteBodyTravelSpeedKmhMax).default(planSmartRouteBodyTravelSpeedKmhDefault)
+  "travelSpeedKmh": zod.number().min(1).max(planSmartRouteBodyTravelSpeedKmhMax).default(planSmartRouteBodyTravelSpeedKmhDefault),
+  "doctorIds": zod.array(zod.number().int().min(1)).min(1).max(planSmartRouteBodyDoctorIdsMax).optional(),
+  "preserveSelectionOrder": zod.boolean().default(planSmartRouteBodyPreserveSelectionOrderDefault)
 })
 
 export const PlanSmartRouteResponse = zod.object({

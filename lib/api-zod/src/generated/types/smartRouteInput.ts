@@ -29,4 +29,11 @@ export interface SmartRouteInput {
      * @maximum 120
      */
   travelSpeedKmh?: number;
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.minimum 1
+     */
+  doctorIds?: number[];
+  preserveSelectionOrder?: boolean;
 }

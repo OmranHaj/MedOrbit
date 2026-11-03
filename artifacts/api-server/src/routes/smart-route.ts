@@ -17,8 +17,24 @@ router.post("/smart-route/plan", async (req, res): Promise<void> => {
   }
   const startPoint = DEMO_START_POINTS.find((point) => point.id === parsed.data.startPointId);
   if (!startPoint) { res.status(400).json({ error: "اختر نقطة انطلاق من النقاط التجريبية المحددة مسبقًا." }); return; }
-  const doctors = await db.select().from(doctorsTable).where(eq(doctorsTable.region, parsed.data.region))
-    .orderBy(asc(doctorsTable.id)).limit(MAX_ROUTE_DOCTORS + 1);
+  const ids = parsed.data.doctorIds;
+  if (ids && new Set(ids).size !== ids.length) {
+    res.status(400).json({ error: "اختيار الجولة يحتوي معرّفات مكررة. أزل التكرار وأعد الحساب." }); return;
+  }
+  if (parsed.data.preserveSelectionOrder && !ids) {
+    res.status(400).json({ error: "الترتيب اليدوي يتطلب اختيار أطباء للجولة أولًا." }); return;
+  }
+  // Read the saved region, then apply the explicit selection. Never replace missing
+  // or cross-region IDs with other doctors, nor trust client-supplied coordinates.
+  let doctors = await db.select().from(doctorsTable).where(eq(doctorsTable.region, parsed.data.region))
+    .orderBy(asc(doctorsTable.id));
+  if (ids) {
+    const selected = new Set(ids);
+    doctors = doctors.filter((doctor) => selected.has(doctor.id));
+    if (doctors.length !== ids.length) {
+      res.status(400).json({ error: "اختيار غير صالح: يجب أن يكون جميع الأطباء موجودين وفي المنطقة المختارة نفسها. حدّث الاختيار دون تغيير سجلاتهم." }); return;
+    }
+  }
   if (doctors.length > MAX_ROUTE_DOCTORS) {
     res.status(400).json({ error: `تدعم هذه النسخة التجريبية حتى ${MAX_ROUTE_DOCTORS} طبيب في المنطقة الواحدة. لم تُستبعد سجلات بصمت؛ اختر منطقة أصغر.` }); return;
   }

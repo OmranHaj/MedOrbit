@@ -75,6 +75,17 @@ paths:
               schema: { $ref: "#/components/schemas/DoctorBriefing" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "404": { $ref: "#/components/responses/NotFound" }
+  /doctor-map:
+    get:
+      operationId: getDoctorMap
+      responses:
+        "200":
+          description: Saved fictional doctors; unusable coordinates and hours are null without repairing stored data
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MapDoctor" }
   /smart-route/options:
     get:
       operationId: getSmartRouteOptions
@@ -565,6 +576,19 @@ components:
         maxDoctorsPerRegion: { type: integer }
         demoRegion: { type: string }
         assumptions: { type: array, items: { type: string } }
+    MapDoctor:
+      type: object
+      required: [id, name, specialty, region, clinicAddress, latitude, longitude, visitingStart, visitingEnd]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        specialty: { type: string }
+        region: { type: string }
+        clinicAddress: { type: string }
+        latitude: { type: [number, "null"] }
+        longitude: { type: [number, "null"] }
+        visitingStart: { type: [string, "null"] }
+        visitingEnd: { type: [string, "null"] }
     SmartRouteInput:
       type: object
       additionalProperties: false
@@ -575,6 +599,12 @@ components:
         startTime: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
         visitDurationMinutes: { type: integer, minimum: 1, maximum: 120, default: 15 }
         travelSpeedKmh: { type: number, minimum: 1, maximum: 120, default: 25 }
+        doctorIds:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { type: integer, minimum: 1 }
+        preserveSelectionOrder: { type: boolean, default: false }
     SmartRouteStop:
       type: object
       required: [order, doctorId, doctorName, region, visitingStart, visitingEnd, latitude, longitude, distanceKm, travelMinutes, arrivalTime, visitStartTime, departureTime, waitingMinutes]

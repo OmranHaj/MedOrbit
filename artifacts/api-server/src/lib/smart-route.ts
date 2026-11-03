@@ -13,7 +13,7 @@ export const ROUTE_ASSUMPTIONS = [
   "سرعة ثابتة يحددها المستخدم؛ زمن الانتقال = المسافة ÷ السرعة، مقربًا إلى أعلى دقيقة كاملة.",
   "ننتظر حتى بداية استقبال المندوبين، ويجب أن تنتهي الزيارة كاملة قبل نهاية النافذة أو عندها.",
   "جولة افتراضية ليوم واحد بالتوقيت المحلي، دون استراحة أو عودة إلى نقطة البداية؛ لا ندعم نوافذ تعبر منتصف الليل.",
-  "لا حركة مرور حية أو GPS أو معلومات طرق أو مواقف؛ النتيجة اقتراح جشع وليست حلًا أمثل عالميًا.",
+  "لا حركة مرور حية أو GPS أو معلومات طرق أو مواقف؛ الوضع التلقائي جشع واليدوي يتبع اختيارك، ولا يضمن أي منهما الحل الأمثل عالميًا.",
   "التخطيط للقراءة فقط: لا يحجز موعدًا ولا يبدأ زيارة أو يتحقق من رمز ولا يحفظ تقريرًا.",
   "النتيجة لقطة للسجلات وقت الحساب؛ أعد الحساب بعد تعديل إحداثيات طبيب أو نافذة استقباله.",
 ];
@@ -70,7 +70,10 @@ export function calculateSmartRoute(input: TourInput, startPoint: StartPoint, do
   const duration = input.visitDurationMinutes, speed = input.travelSpeedKmh, start = minutes(input.startTime);
   const stops: TourPlan["stops"] = [], omitted: TourPlan["omitted"] = [];
   let remaining: WindowDoctor[] = [];
-  for (const doctor of doctors.slice().sort((a, b) => a.id - b.id)) {
+  const requestedOrder = new Map(input.doctorIds?.map((id, index) => [id, index]));
+  const ordered = doctors.slice().sort((a, b) => input.preserveSelectionOrder
+    ? (requestedOrder.get(a.id) ?? 0) - (requestedOrder.get(b.id) ?? 0) : a.id - b.id);
+  for (const doctor of ordered) {
     const omission = {
       doctorId: doctor.id, doctorName: doctor.name,
       visitingStart: doctor.visitingStart, visitingEnd: doctor.visitingEnd,
@@ -98,6 +101,21 @@ export function calculateSmartRoute(input: TourInput, startPoint: StartPoint, do
   let position: Position = startPoint, clock = start;
   let totalDistanceKm = 0, totalTravelMinutes = 0, totalWaitingMinutes = 0;
   while (remaining.length) {
+    // Explicit manual order still uses the same travel/wait/window calculation.
+    // A missed window is omitted, never silently reordered to appear feasible.
+    if (input.preserveSelectionOrder) {
+      const first = remaining[0];
+      if (legTo(first, position, clock, duration, speed).departure > first.closes) {
+        const doctor = first.doctor, leg = legTo(first, position, clock, duration, speed);
+        omitted.push({
+          doctorId: doctor.id, doctorName: doctor.name, visitingStart: doctor.visitingStart, visitingEnd: doctor.visitingEnd,
+          reasonCode: "cannot_fit_after_selected_visits", reason: "لا تتسع نافذة الاستقبال بعد الزيارات السابقة بالترتيب اليدوي المحدد.",
+          estimatedArrivalTime: clockLabel(leg.arrival), estimatedDepartureTime: clockLabel(leg.departure),
+        });
+        remaining.shift();
+        continue;
+      }
+    }
     const candidates = remaining.map((item) => {
       const leg = legTo(item, position, clock, duration, speed);
       if (leg.departure > item.closes) return null;
@@ -107,7 +125,7 @@ export function calculateSmartRoute(input: TourInput, startPoint: StartPoint, do
         legTo(other, item.doctor, leg.departure, duration, speed).departure <= other.closes).length;
       return { item, leg, reachableCount };
     }).filter((candidate) => candidate !== null);
-    candidates.sort((a, b) => b.reachableCount - a.reachableCount ||
+    if (!input.preserveSelectionOrder) candidates.sort((a, b) => b.reachableCount - a.reachableCount ||
       a.leg.departure - b.leg.departure || a.leg.distanceKm - b.leg.distanceKm ||
       a.item.closes - b.item.closes || a.item.doctor.id - b.item.doctor.id);
     const next = candidates[0];
@@ -143,6 +161,7 @@ export function calculateSmartRoute(input: TourInput, startPoint: StartPoint, do
     visitedDoctorCount: stops.length, totalDistanceKm: roundKm(totalDistanceKm),
     totalTravelMinutes, totalWaitingMinutes, totalVisitMinutes: stops.length * duration,
     totalDurationMinutes: clock - start, stops, omitted: omitted.sort((a, b) => a.doctorId - b.doctorId),
-    assumptions: ROUTE_ASSUMPTIONS, method: ROUTE_METHOD,
+    assumptions: ROUTE_ASSUMPTIONS, method: input.preserveSelectionOrder
+      ? "ترتيب يدوي حسب اختيار المستخدم؛ نحسب الانتقال والانتظار ونستبعد النوافذ غير الممكنة دون ادعاء أنه ترتيب أمثل." : ROUTE_METHOD,
   };
 }

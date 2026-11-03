@@ -5,6 +5,7 @@ import { Clock, MapPin, Pencil, Plus, Navigation, BookOpen, ClipboardList, Arrow
 import { Panel, Skel, ErrorState, EmptyState, LinkBtn, Banner } from "@/components/ui-kit";
 import { DoctorBriefing } from "@/components/doctor-briefing";
 import { VisitCard } from "@/components/visit-row";
+import { validMapCoordinates } from "@/hooks/use-tour";
 import { fmtDate, fmtNum, fmtTime } from "@/lib/format";
 
 export default function DoctorProfile() {
@@ -44,7 +45,9 @@ export default function DoctorProfile() {
         <Panel className="divide-y divide-border p-1 lg:col-span-1 self-start">
           <Info icon={<MapPin className="h-4 w-4" />} label="عنوان العيادة"><span data-testid="text-doctor-address">{d.clinicAddress}</span></Info>
           <Info icon={<Clock className="h-4 w-4" />} label="أوقات الزيارة"><span className="num" data-testid="text-doctor-hours">{fmtTime(d.visitingStart)} – {fmtTime(d.visitingEnd)}</span></Info>
-          <Info icon={<Navigation className="h-4 w-4" />} label="الإحداثيات"><span dir="ltr" className="num font-mono text-sm" data-testid="text-doctor-coords">{d.latitude}, {d.longitude}</span></Info>
+          <Info icon={<Navigation className="h-4 w-4" />} label="الإحداثيات"><span dir="ltr" className="num font-mono text-sm" data-testid="text-doctor-coords">{d.latitude}, {d.longitude}</span>
+            {validMapCoordinates(d) ? <div className="mt-2"><LinkBtn href={`/doctor-map?doctorId=${d.id}`} variant="ghost" testId="link-doctor-show-map"><MapPin className="h-4 w-4" />عرض على الخريطة</LinkBtn></div>
+            : <p className="mt-1 text-xs text-amber-800" data-testid="text-doctor-no-map">لم يتم تحديد موقع العيادة بعد.</p>}</Info>
           <Info icon={<BookOpen className="h-4 w-4" />} label="الاهتمامات العلمية"><span className="whitespace-pre-wrap" data-testid="text-doctor-interests">{d.scientificInterests}</span></Info>
           <p className="px-4 py-3 text-xs text-muted-foreground">أضيف في {fmtDate(d.createdAt)}</p>
         </Panel>
