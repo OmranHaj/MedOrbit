@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus } from "lucide-react";
+import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus, BarChart3 } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "لوحة الشركة", icon: LayoutDashboard, id: "dashboard" },
@@ -8,6 +8,7 @@ const NAV = [
   { href: "/visits", label: "تقارير الزيارات", icon: ClipboardList, id: "visits" },
   { href: "/products", label: "المنتجات", icon: Package, id: "products" },
   { href: "/smart-route", label: "الجولة", icon: RouteIcon, id: "smart-route" },
+  { href: "/pharmacy-insights", label: "الصيدليات", icon: BarChart3, id: "pharmacy-insights" },
 ];
 
 export function Logo({ light = false }: { light?: boolean }) {
@@ -62,12 +63,12 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl">{children}</div>
       </main>
 
-      <nav aria-label="التنقل السفلي" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav aria-label="التنقل السفلي" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {NAV.map((n) => {
           const a = active(loc, n.href);
           return (
             <Link key={n.href} href={n.href} data-testid={`link-tab-${n.id}`} aria-current={a ? "page" : undefined}
-              className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${a ? "text-accent" : "text-muted-foreground"}`}>
+              className={`flex flex-col items-center gap-1 px-0.5 py-2.5 text-center text-[10px] leading-tight sm:text-[11px] font-medium transition ${a ? "text-accent" : "text-muted-foreground"}`}>
               <n.icon className="h-5 w-5" />{n.label}
             </Link>
           );

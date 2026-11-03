@@ -11,6 +11,57 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /pharmacy-insights:
+    get:
+      operationId: getPharmacyComparison
+      parameters:
+        - { name: productId, in: query, required: true, schema: { type: integer, minimum: 1, maximum: 2147483647 } }
+        - { name: period, in: query, required: true, schema: { type: string, pattern: '^20[0-9]{2}-(0[1-9]|1[0-2])$' } }
+      responses:
+        "200":
+          description: Saved observations for exactly one product and calendar month; not physician-level evidence
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PharmacyComparison" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: createPharmacyObservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PharmacyObservationInput" }
+      responses:
+        "201":
+          description: Fictional aggregate observation saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PharmacyObservation" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/BadRequest" }
+        "415": { $ref: "#/components/responses/BadRequest" }
+  /pharmacy-insights/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, minimum: 1, maximum: 2147483647 } }
+    put:
+      operationId: updatePharmacyObservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PharmacyObservationInput" }
+      responses:
+        "200":
+          description: Fictional aggregate observation updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PharmacyObservation" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/BadRequest" }
+        "415": { $ref: "#/components/responses/BadRequest" }
   /doctors/{id}/briefing:
     parameters:
       - { name: id, in: path, required: true, schema: { type: integer, minimum: 1 } }
@@ -252,6 +303,47 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    PharmacyRegion:
+      type: string
+      enum: ["الإقليم التجريبي أ", "الإقليم التجريبي ب", "الإقليم التجريبي ج"]
+    PharmacyAvailability:
+      type: string
+      enum: ["متوفر", "محدود", "غير متوفر"]
+    PharmacySource:
+      type: string
+      enum: ["تجميع خيالي أ", "تجميع خيالي ب", "تجميع خيالي ج"]
+    PharmacyObservationInput:
+      type: object
+      additionalProperties: false
+      required: [productId, region, period, unitsSold, availability, sourceLabel]
+      properties:
+        productId: { type: integer, minimum: 1, maximum: 2147483647 }
+        region: { $ref: "#/components/schemas/PharmacyRegion" }
+        period: { type: string, pattern: '^20[0-9]{2}-(0[1-9]|1[0-2])$' }
+        unitsSold: { type: integer, minimum: 0, maximum: 1000000 }
+        availability: { $ref: "#/components/schemas/PharmacyAvailability" }
+        sourceLabel: { $ref: "#/components/schemas/PharmacySource" }
+    PharmacyObservation:
+      allOf:
+        - { $ref: "#/components/schemas/PharmacyObservationInput" }
+        - type: object
+          required: [id, createdAt, updatedAt]
+          properties:
+            id: { type: integer }
+            createdAt: { type: string }
+            updatedAt: { type: string }
+    PharmacyComparison:
+      type: object
+      required: [productId, productName, period, observationCount, totalUnits, unavailableCount, hasSupplyConstraint, observations]
+      properties:
+        productId: { type: integer }
+        productName: { type: string }
+        period: { type: string }
+        observationCount: { type: integer }
+        totalUnits: { type: integer }
+        unavailableCount: { type: integer }
+        hasSupplyConstraint: { type: boolean }
+        observations: { type: array, items: { $ref: "#/components/schemas/PharmacyObservation" } }
     BriefingCitation:
       type: object
       required: [visitId, date, excerpt, verificationStatus]
@@ -522,7 +614,7 @@ components:
         count: { type: integer }
     Dashboard:
       type: object
-      required: [doctorCount, productCount, visitCount, monthVisitCount, interestedCount, visitedDoctorCount, outcomes, regions, recentVisits]
+      required: [doctorCount, productCount, visitCount, monthVisitCount, interestedCount, visitedDoctorCount, outcomes, regions, recentVisits, pharmacyObservationCount, pharmacyUnavailableCount]
       properties:
         doctorCount: { type: integer }
         productCount: { type: integer }
@@ -530,6 +622,8 @@ components:
         monthVisitCount: { type: integer }
         interestedCount: { type: integer }
         visitedDoctorCount: { type: integer }
+        pharmacyObservationCount: { type: integer }
+        pharmacyUnavailableCount: { type: integer }
         outcomes: { type: array, items: { $ref: "#/components/schemas/CountGroup" } }
         regions: { type: array, items: { $ref: "#/components/schemas/CountGroup" } }
         recentVisits: { type: array, items: { $ref: "#/components/schemas/Visit" } }

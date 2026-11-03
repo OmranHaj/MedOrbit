@@ -8,6 +8,133 @@
 import * as zod from 'zod';
 
 
+export const getPharmacyComparisonQueryProductIdMax = 2147483647;
+
+export const getPharmacyComparisonQueryPeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+
+
+export const GetPharmacyComparisonQueryParams = zod.object({
+  "productId": zod.coerce.number().int().min(1).max(getPharmacyComparisonQueryProductIdMax),
+  "period": zod.coerce.string().regex(getPharmacyComparisonQueryPeriodRegExp)
+})
+
+export const getPharmacyComparisonResponseObservationsItemOneProductIdMax = 2147483647;
+
+export const getPharmacyComparisonResponseObservationsItemOnePeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+export const getPharmacyComparisonResponseObservationsItemOneUnitsSoldMin = 0;
+export const getPharmacyComparisonResponseObservationsItemOneUnitsSoldMax = 1000000;
+
+
+
+export const GetPharmacyComparisonResponse = zod.object({
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "period": zod.string(),
+  "observationCount": zod.number().int(),
+  "totalUnits": zod.number().int(),
+  "unavailableCount": zod.number().int(),
+  "hasSupplyConstraint": zod.boolean(),
+  "observations": zod.array(zod.object({
+  "productId": zod.number().int().min(1).max(getPharmacyComparisonResponseObservationsItemOneProductIdMax),
+  "region": zod.enum(['الإقليم التجريبي أ', 'الإقليم التجريبي ب', 'الإقليم التجريبي ج']),
+  "period": zod.string().regex(getPharmacyComparisonResponseObservationsItemOnePeriodRegExp),
+  "unitsSold": zod.number().int().min(getPharmacyComparisonResponseObservationsItemOneUnitsSoldMin).max(getPharmacyComparisonResponseObservationsItemOneUnitsSoldMax),
+  "availability": zod.enum(['متوفر', 'محدود', 'غير متوفر']),
+  "sourceLabel": zod.enum(['تجميع خيالي أ', 'تجميع خيالي ب', 'تجميع خيالي ج'])
+}).and(zod.object({
+  "id": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})))
+})
+
+
+export const createPharmacyObservationBodyProductIdMax = 2147483647;
+
+export const createPharmacyObservationBodyPeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+export const createPharmacyObservationBodyUnitsSoldMin = 0;
+export const createPharmacyObservationBodyUnitsSoldMax = 1000000;
+
+
+
+export const CreatePharmacyObservationBody = zod.object({
+  "productId": zod.number().int().min(1).max(createPharmacyObservationBodyProductIdMax),
+  "region": zod.enum(['الإقليم التجريبي أ', 'الإقليم التجريبي ب', 'الإقليم التجريبي ج']),
+  "period": zod.string().regex(createPharmacyObservationBodyPeriodRegExp),
+  "unitsSold": zod.number().int().min(createPharmacyObservationBodyUnitsSoldMin).max(createPharmacyObservationBodyUnitsSoldMax),
+  "availability": zod.enum(['متوفر', 'محدود', 'غير متوفر']),
+  "sourceLabel": zod.enum(['تجميع خيالي أ', 'تجميع خيالي ب', 'تجميع خيالي ج'])
+})
+
+export const createPharmacyObservationResponseOneProductIdMax = 2147483647;
+
+export const createPharmacyObservationResponseOnePeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+export const createPharmacyObservationResponseOneUnitsSoldMin = 0;
+export const createPharmacyObservationResponseOneUnitsSoldMax = 1000000;
+
+
+
+export const CreatePharmacyObservationResponse = zod.object({
+  "productId": zod.number().int().min(1).max(createPharmacyObservationResponseOneProductIdMax),
+  "region": zod.enum(['الإقليم التجريبي أ', 'الإقليم التجريبي ب', 'الإقليم التجريبي ج']),
+  "period": zod.string().regex(createPharmacyObservationResponseOnePeriodRegExp),
+  "unitsSold": zod.number().int().min(createPharmacyObservationResponseOneUnitsSoldMin).max(createPharmacyObservationResponseOneUnitsSoldMax),
+  "availability": zod.enum(['متوفر', 'محدود', 'غير متوفر']),
+  "sourceLabel": zod.enum(['تجميع خيالي أ', 'تجميع خيالي ب', 'تجميع خيالي ج'])
+}).and(zod.object({
+  "id": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+}))
+
+
+export const updatePharmacyObservationPathIdMax = 2147483647;
+
+
+
+export const UpdatePharmacyObservationParams = zod.object({
+  "id": zod.coerce.number().int().min(1).max(updatePharmacyObservationPathIdMax)
+})
+
+export const updatePharmacyObservationBodyProductIdMax = 2147483647;
+
+export const updatePharmacyObservationBodyPeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+export const updatePharmacyObservationBodyUnitsSoldMin = 0;
+export const updatePharmacyObservationBodyUnitsSoldMax = 1000000;
+
+
+
+export const UpdatePharmacyObservationBody = zod.object({
+  "productId": zod.number().int().min(1).max(updatePharmacyObservationBodyProductIdMax),
+  "region": zod.enum(['الإقليم التجريبي أ', 'الإقليم التجريبي ب', 'الإقليم التجريبي ج']),
+  "period": zod.string().regex(updatePharmacyObservationBodyPeriodRegExp),
+  "unitsSold": zod.number().int().min(updatePharmacyObservationBodyUnitsSoldMin).max(updatePharmacyObservationBodyUnitsSoldMax),
+  "availability": zod.enum(['متوفر', 'محدود', 'غير متوفر']),
+  "sourceLabel": zod.enum(['تجميع خيالي أ', 'تجميع خيالي ب', 'تجميع خيالي ج'])
+})
+
+export const updatePharmacyObservationResponseOneProductIdMax = 2147483647;
+
+export const updatePharmacyObservationResponseOnePeriodRegExp = new RegExp('^20[0-9]{2}-(0[1-9]|1[0-2])$');
+export const updatePharmacyObservationResponseOneUnitsSoldMin = 0;
+export const updatePharmacyObservationResponseOneUnitsSoldMax = 1000000;
+
+
+
+export const UpdatePharmacyObservationResponse = zod.object({
+  "productId": zod.number().int().min(1).max(updatePharmacyObservationResponseOneProductIdMax),
+  "region": zod.enum(['الإقليم التجريبي أ', 'الإقليم التجريبي ب', 'الإقليم التجريبي ج']),
+  "period": zod.string().regex(updatePharmacyObservationResponseOnePeriodRegExp),
+  "unitsSold": zod.number().int().min(updatePharmacyObservationResponseOneUnitsSoldMin).max(updatePharmacyObservationResponseOneUnitsSoldMax),
+  "availability": zod.enum(['متوفر', 'محدود', 'غير متوفر']),
+  "sourceLabel": zod.enum(['تجميع خيالي أ', 'تجميع خيالي ب', 'تجميع خيالي ج'])
+}).and(zod.object({
+  "id": zod.number().int(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+}))
+
+
 
 
 
@@ -630,6 +757,8 @@ export const GetDashboardResponse = zod.object({
   "monthVisitCount": zod.number().int(),
   "interestedCount": zod.number().int(),
   "visitedDoctorCount": zod.number().int(),
+  "pharmacyObservationCount": zod.number().int(),
+  "pharmacyUnavailableCount": zod.number().int(),
   "outcomes": zod.array(zod.object({
   "label": zod.string(),
   "count": zod.number().int()

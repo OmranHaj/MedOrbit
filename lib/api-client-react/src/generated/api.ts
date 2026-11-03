@@ -32,6 +32,7 @@ import type {
   Doctor,
   DoctorBriefing,
   DoctorInput,
+  GetPharmacyComparisonParams,
   HealthStatus,
   ListClinicDemoVisitsParams,
   ListDoctorsParams,
@@ -39,6 +40,9 @@ import type {
   NotFoundResponse,
   PendingVisit,
   PendingVisitInput,
+  PharmacyComparison,
+  PharmacyObservation,
+  PharmacyObservationInput,
   Product,
   SmartRouteInput,
   SmartRouteOptions,
@@ -74,6 +78,273 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetPharmacyComparisonUrl = (params: GetPharmacyComparisonParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/pharmacy-insights?${stringifiedParams}` : `/api/pharmacy-insights`
+}
+
+export const getPharmacyComparison = async (params: GetPharmacyComparisonParams, options?: Parameters<typeof customFetch>[1]): Promise<PharmacyComparison> => {
+
+  return customFetch<PharmacyComparison>(getGetPharmacyComparisonUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPharmacyComparisonQueryKey = (params?: GetPharmacyComparisonParams,) => {
+    return [
+    `/api/pharmacy-insights`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetPharmacyComparisonQueryOptions = <TData = Awaited<ReturnType<typeof getPharmacyComparison>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(params: GetPharmacyComparisonParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPharmacyComparisonQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPharmacyComparison>>> = ({ signal }) => getPharmacyComparison(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPharmacyComparisonQueryResult = NonNullable<Awaited<ReturnType<typeof getPharmacyComparison>>>
+export type GetPharmacyComparisonQueryError = ErrorType<BadRequestResponse | NotFoundResponse>
+
+
+export function useGetPharmacyComparison<TData = Awaited<ReturnType<typeof getPharmacyComparison>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ params: GetPharmacyComparisonParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPharmacyComparison>>,
+          TError,
+          Awaited<ReturnType<typeof getPharmacyComparison>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPharmacyComparison<TData = Awaited<ReturnType<typeof getPharmacyComparison>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ params: GetPharmacyComparisonParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPharmacyComparison>>,
+          TError,
+          Awaited<ReturnType<typeof getPharmacyComparison>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPharmacyComparison<TData = Awaited<ReturnType<typeof getPharmacyComparison>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ params: GetPharmacyComparisonParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetPharmacyComparison<TData = Awaited<ReturnType<typeof getPharmacyComparison>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ params: GetPharmacyComparisonParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPharmacyComparison>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPharmacyComparisonQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreatePharmacyObservationUrl = () => {
+
+
+
+
+  return `/api/pharmacy-insights`
+}
+
+export const createPharmacyObservation = async (pharmacyObservationInput: PharmacyObservationInput, options?: Parameters<typeof customFetch>[1]): Promise<PharmacyObservation> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<PharmacyObservation>(getCreatePharmacyObservationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(pharmacyObservationInput)
+  }
+);}
+
+
+
+
+
+export const getCreatePharmacyObservationMutationKey = () => ['createPharmacyObservation'] as const;
+
+export const getCreatePharmacyObservationMutationOptions = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPharmacyObservation>>, TError,CreatePharmacyObservationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPharmacyObservation>>, TError,CreatePharmacyObservationMutationVariables, TContext> => {
+
+const mutationKey = getCreatePharmacyObservationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPharmacyObservation>>, CreatePharmacyObservationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPharmacyObservation(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePharmacyObservationMutationResult = NonNullable<Awaited<ReturnType<typeof createPharmacyObservation>>>
+    export type CreatePharmacyObservationMutationBody = BodyType<PharmacyObservationInput>
+    export type CreatePharmacyObservationMutationError = ErrorType<BadRequestResponse | NotFoundResponse>
+    export type CreatePharmacyObservationMutationVariables = {data: BodyType<PharmacyObservationInput>}
+
+    export const useCreatePharmacyObservation = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPharmacyObservation>>, TError,CreatePharmacyObservationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPharmacyObservation>>,
+        TError,
+        CreatePharmacyObservationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreatePharmacyObservationMutationOptions(options), queryClient);
+    }
+
+export const getUpdatePharmacyObservationUrl = (id: number,) => {
+
+
+
+
+  return `/api/pharmacy-insights/${id}`
+}
+
+export const updatePharmacyObservation = async (id: number,
+    pharmacyObservationInput: PharmacyObservationInput, options?: Parameters<typeof customFetch>[1]): Promise<PharmacyObservation> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<PharmacyObservation>(getUpdatePharmacyObservationUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(pharmacyObservationInput)
+  }
+);}
+
+
+
+
+
+export const getUpdatePharmacyObservationMutationKey = () => ['updatePharmacyObservation'] as const;
+
+export const getUpdatePharmacyObservationMutationOptions = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePharmacyObservation>>, TError,UpdatePharmacyObservationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updatePharmacyObservation>>, TError,UpdatePharmacyObservationMutationVariables, TContext> => {
+
+const mutationKey = getUpdatePharmacyObservationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updatePharmacyObservation>>, UpdatePharmacyObservationMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updatePharmacyObservation(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdatePharmacyObservationMutationResult = NonNullable<Awaited<ReturnType<typeof updatePharmacyObservation>>>
+    export type UpdatePharmacyObservationMutationBody = BodyType<PharmacyObservationInput>
+    export type UpdatePharmacyObservationMutationError = ErrorType<BadRequestResponse | NotFoundResponse>
+    export type UpdatePharmacyObservationMutationVariables = {id: number;data: BodyType<PharmacyObservationInput>}
+
+    export const useUpdatePharmacyObservation = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePharmacyObservation>>, TError,UpdatePharmacyObservationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updatePharmacyObservation>>,
+        TError,
+        UpdatePharmacyObservationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdatePharmacyObservationMutationOptions(options), queryClient);
+    }
 
 export const getGetDoctorBriefingUrl = (id: number,) => {
 

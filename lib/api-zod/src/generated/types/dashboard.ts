@@ -15,6 +15,8 @@ export interface Dashboard {
   monthVisitCount: number;
   interestedCount: number;
   visitedDoctorCount: number;
+  pharmacyObservationCount: number;
+  pharmacyUnavailableCount: number;
   outcomes: CountGroup[];
   regions: CountGroup[];
   recentVisits: Visit[];

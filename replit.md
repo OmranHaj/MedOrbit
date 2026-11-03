@@ -40,16 +40,18 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 - Route estimates use saved fictional doctor coordinates/windows and a disclosed fixed speed, not live roads/traffic or global optimization. **Why:** this is a beginner-friendly hackathon heuristic without an external routing service. Preserve these limits in future UI claims.
 - Doctor briefings are a read-only projection of saved reports, with visit ID/date citations. The current engine uses fixed rules, labelled `ملخص آلي منظّم`, never generative AI. **Why:** no existing secure LLM integration was available, and the user explicitly requires honest disclosure and strict grounding. **How to apply:** never introduce fictional preferences, prescribing claims, personality profiles, or external model calls as silent fallbacks.
 - Declared interests have profile-field provenance, not an invented visit date; the file creation timestamp is not a last-edited timestamp. Requests extracted from notes have an unknown completion state, even if another note generically mentions delivery. **Why:** neither interest-change history nor per-request completion tracking exists in the saved evidence. **How to apply:** cite only exact report mentions, distinguish the profile source explicitly, and suggest checking request completion rather than asserting it remains open.
+- Pharmacy Insights Lite is fictional regional aggregate data only, independent of doctors and verified visits. Never infer an individual doctor's prescribing, preferences or score from regional sales, including in future briefings. **Why:** the user explicitly forbids this inference; regional sales cannot establish individual behavior. **How to apply:** keep the disclaimer prominent and warn that unavailable stock can drive low observed sales.
+- Pharmacy entry uses a closed, monthly aggregate contract with predefined fictional regions/sources and no notes or uploads; unknown fields are rejected, not silently stripped. **Why:** the user forbids identifiable prescriptions, patient details and prescription photos, and requested a very small module. **How to apply:** preserve the privacy boundary in both client and server; missing regional data is not zero, and observations from unlike products/periods must not be summed as a sales comparison.
 
 ## Product
 
-- Search, add, edit and view fictional doctors; browse three fictional products; save professional visit reports; query actual saved records in the company dashboard; calculate a time-window-aware fictional Smart Route tour; prepare a visit from grounded saved-report summaries.
+- Search, add, edit and view fictional doctors; browse three fictional products; save professional visit reports; query actual saved records in the company dashboard; calculate a time-window-aware fictional Smart Route tour; prepare a visit from grounded saved-report summaries; enter/edit fictional pharmacy aggregates and compare regions for the same product/month.
 
 ## User preferences
 
 - Arabic content, correct RTL, mobile and desktop, navy/teal/white.
 - No patient information, prescription images, real phone numbers or sensitive personal traits.
-- Demo-code verification, the simple Smart Route planner, and grounded doctor briefings are explicitly in scope. Use a secure existing server-side model only if actually available; otherwise disclose the structured-rule fallback. Do not add WhatsApp, SMS, pharmacy modules, live traffic or external road-navigation integrations.
+- Demo-code verification, the simple Smart Route planner, grounded doctor briefings, and the explicitly requested Pharmacy Insights Lite aggregate module are in scope. Use a secure existing server-side model only if actually available; otherwise disclose the structured-rule fallback. Do not add WhatsApp, SMS, prescription/patient pharmacy workflows, live traffic or external road-navigation integrations.
 - Extend current code and preserve all saved data; seed additions must never overwrite edited doctor records.
 - Be explicit about actual verification results and incomplete features; never claim unperformed browser tests.
 

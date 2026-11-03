@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, doctorsTable, productsTable, visitsTable } from "@workspace/db";
+import { db, doctorsTable, productsTable, visitsTable, pharmacyObservationsTable } from "@workspace/db";
 import { count, countDistinct, desc, eq, sql } from "drizzle-orm";
 import { GetDashboardResponse } from "@workspace/api-zod";
 import { visitFields } from "../lib/visit-query";
@@ -9,6 +9,10 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
   const dashboard = await db.transaction(async (tx) => {
     const [doctors] = await tx.select({ value: count() }).from(doctorsTable);
     const [products] = await tx.select({ value: count() }).from(productsTable);
+    const [pharmacy] = await tx.select({
+      pharmacyObservationCount: count(),
+      pharmacyUnavailableCount: sql<number>`count(*) FILTER (WHERE ${pharmacyObservationsTable.availability} = 'غير متوفر')::integer`,
+    }).from(pharmacyObservationsTable);
     const [totals] = await tx.select({
       visitCount: count(),
       visitedDoctorCount: countDistinct(sql`CASE WHEN ${visitsTable.outcome} <> 'لم تتم الزيارة' THEN ${visitsTable.doctorId} END`),
@@ -24,7 +28,7 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
       .innerJoin(productsTable, eq(visitsTable.productId, productsTable.id))
       .orderBy(desc(visitsTable.date), desc(visitsTable.id)).limit(5);
     return {
-      doctorCount: doctors.value, productCount: products.value, ...totals,
+      doctorCount: doctors.value, productCount: products.value, ...totals, ...pharmacy,
       outcomes, regions, recentVisits,
     };
   }, { isolationLevel: "repeatable read", accessMode: "read only" });

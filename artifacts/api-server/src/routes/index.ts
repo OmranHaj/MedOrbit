@@ -7,6 +7,7 @@ import dashboardRouter from "./dashboard";
 import visitVerificationRouter from "./visit-verification";
 import smartRouteRouter from "./smart-route";
 import doctorBriefingRouter from "./doctor-briefing";
+import pharmacyInsightsRouter from "./pharmacy-insights";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(dashboardRouter);
 router.use(visitVerificationRouter);
 router.use(smartRouteRouter);
 router.use(doctorBriefingRouter);
+router.use(pharmacyInsightsRouter);
 
 export default router;

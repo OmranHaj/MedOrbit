@@ -1,11 +1,11 @@
-import { useGetDashboard } from "@workspace/api-client-react";
-import { ClipboardList, Plus, Stethoscope, Users, CalendarCheck, Sparkles, Package } from "lucide-react";
+import { useGetDashboard, getGetDashboardQueryKey } from "@workspace/api-client-react";
+import { ClipboardList, Plus, Stethoscope, Users, CalendarCheck, Sparkles, Package, BarChart3, AlertTriangle } from "lucide-react";
 import { PageHeader, Panel, Skel, ErrorState, EmptyState, LinkBtn, PrivacyNote } from "@/components/ui-kit";
 import { VisitCard } from "@/components/visit-row";
 import { fmtNum, OUTCOMES } from "@/lib/format";
 
 export default function Dashboard() {
-  const q = useGetDashboard();
+  const q = useGetDashboard({ query: { queryKey: getGetDashboardQueryKey(), staleTime: 0, refetchOnWindowFocus: true, refetchInterval: 30000 } });
   const d = q.data;
   const month = new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(new Date());
 
@@ -27,6 +27,20 @@ export default function Dashboard() {
             <Stat label="أطباء تمت زيارتهم" value={d.visitedDoctorCount} sub={`من ${fmtNum(d.doctorCount)}`} icon={<Users className="h-4 w-4" />} id="visited" />
             <Stat label="المنتجات في الكتالوج" value={d.productCount} icon={<Package className="h-4 w-4" />} id="products" />
           </div>
+
+          <Panel className="p-5" >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 font-display font-semibold text-primary"><BarChart3 className="h-4 w-4 text-accent" />مؤشرات الصيدليات (تجميعية خيالية)</h2>
+                <div className="mt-3 flex flex-wrap gap-6">
+                  <div><div className="text-xs text-muted-foreground">السجلات الإقليمية المحفوظة</div><div className="num font-display text-2xl font-bold text-primary" data-testid="stat-pharmacy-observations">{fmtNum(d.pharmacyObservationCount)}</div></div>
+                  <div><div className="text-xs text-muted-foreground">سجلات «غير متوفر» عبر كل الأشهر</div><div className="num font-display text-2xl font-bold text-primary" data-testid="stat-pharmacy-unavailable">{fmtNum(d.pharmacyUnavailableCount)}</div></div>
+                </div>
+              </div>
+              <LinkBtn href="/pharmacy-insights" variant="ghost" testId="link-dashboard-pharmacy">إدخال ومقارنة</LinkBtn>
+            </div>
+            <p className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-900" data-testid="text-dashboard-pharmacy-disclaimer"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />المبيعات الإقليمية لا تثبت سلوك وصف أي طبيب بعينه، ولا تُستخدم لتقييم الأطباء. هذه أعداد سجلات وليست مجموع مبيعات، ولا تمثل حالة توفر حالية.</p>
+          </Panel>
 
           <div className="grid gap-6 lg:grid-cols-5">
             <Panel className="p-5 lg:col-span-2">

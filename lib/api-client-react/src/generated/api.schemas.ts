@@ -5,6 +5,68 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
+export type PharmacyRegion = typeof PharmacyRegion[keyof typeof PharmacyRegion];
+
+
+export const PharmacyRegion = {
+  الإقليم_التجريبي_أ: 'الإقليم التجريبي أ',
+  الإقليم_التجريبي_ب: 'الإقليم التجريبي ب',
+  الإقليم_التجريبي_ج: 'الإقليم التجريبي ج',
+} as const;
+
+export type PharmacyAvailability = typeof PharmacyAvailability[keyof typeof PharmacyAvailability];
+
+
+export const PharmacyAvailability = {
+  متوفر: 'متوفر',
+  محدود: 'محدود',
+  غير_متوفر: 'غير متوفر',
+} as const;
+
+export type PharmacySource = typeof PharmacySource[keyof typeof PharmacySource];
+
+
+export const PharmacySource = {
+  تجميع_خيالي_أ: 'تجميع خيالي أ',
+  تجميع_خيالي_ب: 'تجميع خيالي ب',
+  تجميع_خيالي_ج: 'تجميع خيالي ج',
+} as const;
+
+export interface PharmacyObservationInput {
+  /**
+     * @minimum 1
+     * @maximum 2147483647
+     */
+  productId: number;
+  region: PharmacyRegion;
+  /** @pattern ^20[0-9]{2}-(0[1-9]|1[0-2])$ */
+  period: string;
+  /**
+     * @minimum 0
+     * @maximum 1000000
+     */
+  unitsSold: number;
+  availability: PharmacyAvailability;
+  sourceLabel: PharmacySource;
+}
+
+export type PharmacyObservation = PharmacyObservationInput & {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export interface PharmacyComparison {
+  productId: number;
+  productName: string;
+  period: string;
+  observationCount: number;
+  totalUnits: number;
+  unavailableCount: number;
+  hasSupplyConstraint: boolean;
+  observations: PharmacyObservation[];
+}
+
 export type BriefingCitationVerificationStatus = typeof BriefingCitationVerificationStatus[keyof typeof BriefingCitationVerificationStatus];
 
 
@@ -386,6 +448,8 @@ export interface Dashboard {
   monthVisitCount: number;
   interestedCount: number;
   visitedDoctorCount: number;
+  pharmacyObservationCount: number;
+  pharmacyUnavailableCount: number;
   outcomes: CountGroup[];
   regions: CountGroup[];
   recentVisits: Visit[];
@@ -404,6 +468,18 @@ export type BadRequestResponse = ApiError;
  * Record not found
  */
 export type NotFoundResponse = ApiError;
+
+export type GetPharmacyComparisonParams = {
+/**
+ * @minimum 1
+ * @maximum 2147483647
+ */
+productId: number;
+/**
+ * @pattern ^20[0-9]{2}-(0[1-9]|1[0-2])$
+ */
+period: string;
+};
 
 export type ListClinicDemoVisitsParams = {
 /**
