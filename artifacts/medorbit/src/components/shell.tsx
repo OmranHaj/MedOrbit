@@ -20,7 +20,13 @@ const NAV = [
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <svg viewBox="0 0 64 64" className="h-9 w-9" aria-hidden><rect width="64" height="64" rx="16" fill={light ? "#16345c" : "#0f2747"} /><circle cx="32" cy="32" r="17" fill="none" stroke="#2bb3a3" strokeWidth="4" /><path d="M28 22h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="#f4f8fb" /><circle cx="48" cy="20" r="4.5" fill="#2bb3a3" /></svg>
+      <svg viewBox="0 0 64 64" className="h-9 w-9" aria-hidden="true">
+        <rect width="64" height="64" rx="16" fill={light ? "#16345c" : "#0f2747"} />
+        <ellipse className="mo-orbit-trail" cx="32" cy="32" rx="25" ry="12" transform="rotate(-35 32 32)" />
+        <circle cx="32" cy="32" r="17" fill="none" stroke="#2bb3a3" strokeWidth="4" />
+        <path d="M28 22h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="#f4f8fb" />
+        <circle className="mo-orbit-dot" cx="48" cy="20" r="4.5" fill="#2bb3a3" />
+      </svg>
       <div className="leading-tight">
         <div className={`font-display text-lg font-bold ${light ? "text-white" : "text-primary"}`}>ميد أوربت</div>
         <div className={`text-[11px] ${light ? "text-sidebar-foreground/60" : "text-muted-foreground"}`}>سجل المندوب الطبي</div>

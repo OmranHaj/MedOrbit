@@ -20,12 +20,12 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-            <Stat hero label="إجمالي الزيارات" value={d.visitCount} icon={<ClipboardList className="h-4 w-4" />} id="visits" />
-            <Stat label={`زيارات ${month}`} value={d.monthVisitCount} icon={<CalendarCheck className="h-4 w-4" />} id="month" />
-            <Stat label="نتائج «مهتم»" value={d.interestedCount} icon={<Sparkles className="h-4 w-4" />} id="interested" />
-            <Stat label="الأطباء المسجلون" value={d.doctorCount} icon={<Stethoscope className="h-4 w-4" />} id="doctors" />
-            <Stat label="أطباء تمت زيارتهم" value={d.visitedDoctorCount} sub={`من ${fmtNum(d.doctorCount)}`} icon={<Users className="h-4 w-4" />} id="visited" />
-            <Stat label="المنتجات في الكتالوج" value={d.productCount} icon={<Package className="h-4 w-4" />} id="products" />
+            <Stat hero order={0} label="إجمالي الزيارات" value={d.visitCount} icon={<ClipboardList className="h-4 w-4" />} id="visits" />
+            <Stat order={1} label={`زيارات ${month}`} value={d.monthVisitCount} icon={<CalendarCheck className="h-4 w-4" />} id="month" />
+            <Stat order={2} label="نتائج «مهتم»" value={d.interestedCount} icon={<Sparkles className="h-4 w-4" />} id="interested" />
+            <Stat order={3} label="الأطباء المسجلون" value={d.doctorCount} icon={<Stethoscope className="h-4 w-4" />} id="doctors" />
+            <Stat order={4} label="أطباء تمت زيارتهم" value={d.visitedDoctorCount} sub={`من ${fmtNum(d.doctorCount)}`} icon={<Users className="h-4 w-4" />} id="visited" />
+            <Stat order={5} label="المنتجات في الكتالوج" value={d.productCount} icon={<Package className="h-4 w-4" />} id="products" />
           </div>
 
           <Panel className="p-5" >
@@ -84,9 +84,9 @@ export default function Dashboard() {
   );
 }
 
-function Stat({ label, value, icon, sub, hero, id }: { label: string; value: number; icon: React.ReactNode; sub?: string; hero?: boolean; id: string }) {
+function Stat({ label, value, icon, sub, hero, id, order }: { label: string; value: number; icon: React.ReactNode; sub?: string; hero?: boolean; id: string; order: number }) {
   return (
-    <div className={`rise rounded-2xl border p-4 sm:p-5 ${hero ? "border-primary bg-primary text-primary-foreground" : "border-card-border bg-card"}`}>
+    <div className={`rise dashboard-stat rounded-2xl border p-4 sm:p-5 ${hero ? "border-primary bg-primary text-primary-foreground" : "border-card-border bg-card"}`} style={{ animationDelay: `${order * 65}ms` }}>
       <div className={`flex items-center gap-2 text-xs font-medium ${hero ? "text-primary-foreground/70" : "text-muted-foreground"}`}><span className={hero ? "text-[hsl(173_62%_55%)]" : "text-accent"}>{icon}</span>{label}</div>
       <div className="mt-2 flex items-baseline gap-2"><span className="num font-display text-3xl font-bold" data-testid={`stat-${id}`}>{fmtNum(value)}</span>{sub && <span className="text-xs opacity-70">{sub}</span>}</div>
     </div>
