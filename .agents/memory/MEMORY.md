@@ -1,0 +1,1 @@
+- [GitHub upload access](github-upload-access.md) — use Replit’s secure Git provider proxy when connector access is unavailable; never extract tokens.

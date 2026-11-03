@@ -1,5 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { seedDemoData } from "./lib/seed";
+import { pool } from "@workspace/db";
 
 const rawPort = process.env["PORT"];
 
@@ -15,11 +17,16 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
-
-  logger.info({ port }, "Server listening");
-});
+async function start() {
+  await seedDemoData();
+  const server = app.listen(port, (err) => {
+    if (err) { logger.error({ err }, "Error listening on port"); process.exit(1); }
+    logger.info({ port }, "Server listening");
+  });
+  const shutdown = () => {
+    server.close(() => { void pool.end().then(() => process.exit(0)); });
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
+}
+start().catch((err) => { logger.error({ err }, "Database initialization failed"); process.exit(1); });
