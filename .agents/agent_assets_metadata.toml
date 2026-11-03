@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "eaRccPWx47Q6w-ziA0Ykb"
+uri = "file://generated-artifacts/Orbit.zip"
+type = "unspecified"
+title = "Orbit — نسخة المشروع"
+description = "ملف المشروع كاملًا مع تعليمات التشغيل ونتائج التحقق بالعربية. نزّله وفكّه على سطح المكتب. لا يتضمن أسرارًا أو قاعدة البيانات."
+logical_id = "b8e759b2-5e43-439e-95a2-e96c170d2a1c"
+content_hash = "sha256:babf652e3db123e15fc548e5ca4afee2de04aaab690dcb40f21a6db31c679709"
+size = 269719
+mtime_ms = 1793690171796
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:e3e10053-1e9e-4052-b608-da1ccf7b12af/b8e759b2-5e43-439e-95a2-e96c170d2a1c/2be23d35-b7cc-4dfa-8217-051b83b4f4b6"
+storage_version_token = "1793690187949338"
+content_type = "application/octet-stream"
