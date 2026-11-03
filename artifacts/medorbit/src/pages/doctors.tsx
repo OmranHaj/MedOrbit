@@ -23,7 +23,7 @@ export default function Doctors() {
   return (
     <>
       <PageHeader eyebrow="الدليل" title="الأطباء" subtitle="ملفات مهنية خيالية: التخصص والمنطقة وأوقات الزيارة والاهتمامات العلمية." action={<LinkBtn href="/doctors/new" variant="teal" testId="link-new-doctor"><Plus className="h-4 w-4" />إضافة طبيب</LinkBtn>} />
-      <div className="mb-5 grid gap-3 rounded-2xl border border-card-border bg-card p-3 sm:grid-cols-[1fr_auto_auto_auto]">
+      <div className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-card-border bg-card p-3 sm:grid-cols-[1fr_auto_auto_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input type="search" aria-label="بحث" data-testid="input-search" value={search} onChange={(e) => setSearch(e.target.value)} maxLength={150} placeholder="ابحث بالاسم أو العنوان أو الاهتمام..." className="field-input pr-9" />
@@ -51,9 +51,9 @@ export default function Doctors() {
       ) : (
         <>
           <p className="mb-3 text-sm text-muted-foreground" data-testid="text-result-count">{fmtNum(filtered.data.length)} {filtered.data.length === 1 ? "طبيب" : "أطباء"}{filtered.isFetching && " · جارٍ التحديث..."}</p>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {filtered.data.map((d) => (
-              <Link key={d.id} href={`/doctors/${d.id}`} data-testid={`card-doctor-${d.id}`} className="rise group block rounded-2xl border border-card-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg hover:shadow-primary/5">
+              <Link key={d.id} href={`/doctors/${d.id}`} data-testid={`card-doctor-${d.id}`} className="rise group block min-w-0 rounded-2xl border border-card-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lg hover:shadow-primary/5">
                 <div className="flex items-start gap-3">
                   <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary font-display text-base font-bold text-primary-foreground">{d.name.replace(/^د\.\s*/, "").charAt(0)}</div>
                   <div className="min-w-0 flex-1">

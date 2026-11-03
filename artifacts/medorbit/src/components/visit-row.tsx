@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import type { Visit } from "@workspace/api-client-react";
-import { CalendarDays, Package } from "lucide-react";
+import { BadgeCheck, CalendarDays, CircleDashed, Package } from "lucide-react";
 import { OutcomeBadge } from "@/components/ui-kit";
 import { fmtDate } from "@/lib/format";
 
@@ -20,6 +20,11 @@ export function VisitCard({ v, showDoctor = true }: { v: Visit; showDoctor?: boo
         </div>
         <OutcomeBadge outcome={v.outcome} />
       </div>
+      {v.verificationStatus === "Confirmed by clinic demo code" ? (
+        <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 text-xs font-semibold text-teal-800" data-testid={`status-verification-${v.id}`}><BadgeCheck className="h-3.5 w-3.5" />مؤكَّدة برمز العيادة التجريبي <span dir="ltr" className="font-normal text-muted-foreground">Confirmed by clinic demo code</span></p>
+      ) : (
+        <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 text-xs font-medium text-muted-foreground" data-testid={`status-verification-${v.id}`}><CircleDashed className="h-3.5 w-3.5" />تقرير سابق غير مُتحقَّق منه <span dir="ltr">Unverified legacy report</span></p>
+      )}
       <p className="mt-3 whitespace-pre-wrap border-r-2 border-accent/40 pr-3 text-sm leading-relaxed text-foreground/85" data-testid={`text-visit-notes-${v.id}`}>{v.notes}</p>
     </article>
   );

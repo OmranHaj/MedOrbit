@@ -26,14 +26,20 @@ import type {
 
 import type {
   BadRequestResponse,
+  ClinicDemoVisit,
   Dashboard,
+  DemoSession,
   Doctor,
   DoctorInput,
   HealthStatus,
+  ListClinicDemoVisitsParams,
   ListDoctorsParams,
   ListVisitsParams,
   NotFoundResponse,
+  PendingVisit,
+  PendingVisitInput,
   Product,
+  VerificationInput,
   Visit,
   VisitInput
 } from './api.schemas';
@@ -64,6 +70,504 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getStartRepresentativeSessionUrl = () => {
+
+
+
+
+  return `/api/verification/representative-session`
+}
+
+export const startRepresentativeSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<DemoSession> => {
+
+  return customFetch<DemoSession>(getStartRepresentativeSessionUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartRepresentativeSessionMutationKey = () => ['startRepresentativeSession'] as const;
+
+export const getStartRepresentativeSessionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startRepresentativeSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startRepresentativeSession>>, TError,void, TContext> => {
+
+const mutationKey = getStartRepresentativeSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startRepresentativeSession>>, void> = () => {
+
+
+          return  startRepresentativeSession(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartRepresentativeSessionMutationResult = NonNullable<Awaited<ReturnType<typeof startRepresentativeSession>>>
+
+    export type StartRepresentativeSessionMutationError = ErrorType<unknown>
+
+
+    export const useStartRepresentativeSession = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startRepresentativeSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof startRepresentativeSession>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getStartRepresentativeSessionMutationOptions(options), queryClient);
+    }
+
+export const getStartClinicDemoSessionUrl = () => {
+
+
+
+
+  return `/api/clinic-demo/session`
+}
+
+export const startClinicDemoSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<DemoSession> => {
+
+  return customFetch<DemoSession>(getStartClinicDemoSessionUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartClinicDemoSessionMutationKey = () => ['startClinicDemoSession'] as const;
+
+export const getStartClinicDemoSessionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startClinicDemoSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startClinicDemoSession>>, TError,void, TContext> => {
+
+const mutationKey = getStartClinicDemoSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startClinicDemoSession>>, void> = () => {
+
+
+          return  startClinicDemoSession(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartClinicDemoSessionMutationResult = NonNullable<Awaited<ReturnType<typeof startClinicDemoSession>>>
+
+    export type StartClinicDemoSessionMutationError = ErrorType<unknown>
+
+
+    export const useStartClinicDemoSession = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startClinicDemoSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof startClinicDemoSession>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getStartClinicDemoSessionMutationOptions(options), queryClient);
+    }
+
+export const getListPendingVisitsUrl = () => {
+
+
+
+
+  return `/api/pending-visits`
+}
+
+export const listPendingVisits = async ( options?: Parameters<typeof customFetch>[1]): Promise<PendingVisit[]> => {
+
+  return customFetch<PendingVisit[]>(getListPendingVisitsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPendingVisitsQueryKey = () => {
+    return [
+    `/api/pending-visits`
+    ] as const;
+    }
+
+
+export const getListPendingVisitsQueryOptions = <TData = Awaited<ReturnType<typeof listPendingVisits>>, TError = ErrorType<BadRequestResponse>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPendingVisitsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPendingVisits>>> = ({ signal }) => listPendingVisits({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListPendingVisitsQueryResult = NonNullable<Awaited<ReturnType<typeof listPendingVisits>>>
+export type ListPendingVisitsQueryError = ErrorType<BadRequestResponse>
+
+
+export function useListPendingVisits<TData = Awaited<ReturnType<typeof listPendingVisits>>, TError = ErrorType<BadRequestResponse>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listPendingVisits>>,
+          TError,
+          Awaited<ReturnType<typeof listPendingVisits>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListPendingVisits<TData = Awaited<ReturnType<typeof listPendingVisits>>, TError = ErrorType<BadRequestResponse>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listPendingVisits>>,
+          TError,
+          Awaited<ReturnType<typeof listPendingVisits>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListPendingVisits<TData = Awaited<ReturnType<typeof listPendingVisits>>, TError = ErrorType<BadRequestResponse>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListPendingVisits<TData = Awaited<ReturnType<typeof listPendingVisits>>, TError = ErrorType<BadRequestResponse>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPendingVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListPendingVisitsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getStartPendingVisitUrl = () => {
+
+
+
+
+  return `/api/pending-visits`
+}
+
+export const startPendingVisit = async (pendingVisitInput: PendingVisitInput, options?: Parameters<typeof customFetch>[1]): Promise<PendingVisit> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<PendingVisit>(getStartPendingVisitUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(pendingVisitInput)
+  }
+);}
+
+
+
+
+
+export const getStartPendingVisitMutationKey = () => ['startPendingVisit'] as const;
+
+export const getStartPendingVisitMutationOptions = <TError = ErrorType<BadRequestResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startPendingVisit>>, TError,StartPendingVisitMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startPendingVisit>>, TError,StartPendingVisitMutationVariables, TContext> => {
+
+const mutationKey = getStartPendingVisitMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startPendingVisit>>, StartPendingVisitMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  startPendingVisit(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartPendingVisitMutationResult = NonNullable<Awaited<ReturnType<typeof startPendingVisit>>>
+    export type StartPendingVisitMutationBody = BodyType<PendingVisitInput>
+    export type StartPendingVisitMutationError = ErrorType<BadRequestResponse>
+    export type StartPendingVisitMutationVariables = {data: BodyType<PendingVisitInput>}
+
+    export const useStartPendingVisit = <TError = ErrorType<BadRequestResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startPendingVisit>>, TError,StartPendingVisitMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof startPendingVisit>>,
+        TError,
+        StartPendingVisitMutationVariables,
+        TContext
+      > => {
+      return useMutation(getStartPendingVisitMutationOptions(options), queryClient);
+    }
+
+export const getVerifyPendingVisitUrl = (id: string,) => {
+
+
+
+
+  return `/api/pending-visits/${id}/verify`
+}
+
+export const verifyPendingVisit = async (id: string,
+    verificationInput: VerificationInput, options?: Parameters<typeof customFetch>[1]): Promise<PendingVisit> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<PendingVisit>(getVerifyPendingVisitUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(verificationInput)
+  }
+);}
+
+
+
+
+
+export const getVerifyPendingVisitMutationKey = () => ['verifyPendingVisit'] as const;
+
+export const getVerifyPendingVisitMutationOptions = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyPendingVisit>>, TError,VerifyPendingVisitMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyPendingVisit>>, TError,VerifyPendingVisitMutationVariables, TContext> => {
+
+const mutationKey = getVerifyPendingVisitMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyPendingVisit>>, VerifyPendingVisitMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  verifyPendingVisit(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyPendingVisitMutationResult = NonNullable<Awaited<ReturnType<typeof verifyPendingVisit>>>
+    export type VerifyPendingVisitMutationBody = BodyType<VerificationInput>
+    export type VerifyPendingVisitMutationError = ErrorType<BadRequestResponse | NotFoundResponse>
+    export type VerifyPendingVisitMutationVariables = {id: string;data: BodyType<VerificationInput>}
+
+    export const useVerifyPendingVisit = <TError = ErrorType<BadRequestResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyPendingVisit>>, TError,VerifyPendingVisitMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyPendingVisit>>,
+        TError,
+        VerifyPendingVisitMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyPendingVisitMutationOptions(options), queryClient);
+    }
+
+export const getListClinicDemoVisitsUrl = (params?: ListClinicDemoVisitsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/clinic-demo/pending-visits?${stringifiedParams}` : `/api/clinic-demo/pending-visits`
+}
+
+export const listClinicDemoVisits = async (params?: ListClinicDemoVisitsParams, options?: Parameters<typeof customFetch>[1]): Promise<ClinicDemoVisit[]> => {
+
+  return customFetch<ClinicDemoVisit[]>(getListClinicDemoVisitsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListClinicDemoVisitsQueryKey = (params?: ListClinicDemoVisitsParams,) => {
+    return [
+    `/api/clinic-demo/pending-visits`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListClinicDemoVisitsQueryOptions = <TData = Awaited<ReturnType<typeof listClinicDemoVisits>>, TError = ErrorType<BadRequestResponse>>(params?: ListClinicDemoVisitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListClinicDemoVisitsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listClinicDemoVisits>>> = ({ signal }) => listClinicDemoVisits(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListClinicDemoVisitsQueryResult = NonNullable<Awaited<ReturnType<typeof listClinicDemoVisits>>>
+export type ListClinicDemoVisitsQueryError = ErrorType<BadRequestResponse>
+
+
+export function useListClinicDemoVisits<TData = Awaited<ReturnType<typeof listClinicDemoVisits>>, TError = ErrorType<BadRequestResponse>>(
+ params: undefined |  ListClinicDemoVisitsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listClinicDemoVisits>>,
+          TError,
+          Awaited<ReturnType<typeof listClinicDemoVisits>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListClinicDemoVisits<TData = Awaited<ReturnType<typeof listClinicDemoVisits>>, TError = ErrorType<BadRequestResponse>>(
+ params?: ListClinicDemoVisitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listClinicDemoVisits>>,
+          TError,
+          Awaited<ReturnType<typeof listClinicDemoVisits>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListClinicDemoVisits<TData = Awaited<ReturnType<typeof listClinicDemoVisits>>, TError = ErrorType<BadRequestResponse>>(
+ params?: ListClinicDemoVisitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListClinicDemoVisits<TData = Awaited<ReturnType<typeof listClinicDemoVisits>>, TError = ErrorType<BadRequestResponse>>(
+ params?: ListClinicDemoVisitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listClinicDemoVisits>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListClinicDemoVisitsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListDoctorsUrl = (params?: ListDoctorsParams,) => {
   const normalizedParams = new URLSearchParams();

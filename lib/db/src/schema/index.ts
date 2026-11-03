@@ -20,3 +20,5 @@
 export * from "./doctors";
 export * from "./products";
 export * from "./visits";
+export * from "./demo-sessions";
+export * from "./pending-visits";

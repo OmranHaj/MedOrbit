@@ -8,6 +8,7 @@
 import type { VisitOutcome } from './visitOutcome';
 
 export interface VisitInput {
+  pendingVisitId: string;
   /** @minimum 1 */
   doctorId: number;
   /** @minimum 1 */

@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { seedDemoData } from "./lib/seed";
 import { pool } from "@workspace/db";
+import { assertOtpConfiguration } from "./lib/visit-otp";
 
 const rawPort = process.env["PORT"];
 
@@ -18,6 +19,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 async function start() {
+  assertOtpConfiguration();
   await seedDemoData();
   const server = app.listen(port, (err) => {
     if (err) { logger.error({ err }, "Error listening on port"); process.exit(1); }

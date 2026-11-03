@@ -10,7 +10,7 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string; persistent `SESSION_SECRET` (at least 16 characters) for OTP hashing/encryption. Never log either value.
 
 ## Stack
 
@@ -33,6 +33,9 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 
 - Preserve one integrated app, one Node.js API and persistent PostgreSQL during later additions; the two beginner student authors requested platform-supported defaults and no microservices.
 - This is a fictional-only hackathon demonstration without authentication or company isolation. Do not use real medical/company data.
+- The requested clinic OTP is a separate, explicitly public-activatable DEMO simulator, not real clinic staff authentication or proof of physical presence. Representatives have server-issued opaque demo sessions, not browser-supplied identities. Preserve the separation between the representative form and the code-display page.
+- OTP verification uses only a context-bound keyed hash. A separately keyed authenticated-encryption envelope exists solely so the simulated secretary can reload its delivery page without storing plaintext codes. Never send this envelope, the hash, or a generated code to representative endpoints.
+- Existing reports stay unverified legacy records; only backend-verified new visits may receive `Confirmed by clinic demo code`, and each pending visit permits one report.
 
 ## Product
 
@@ -42,7 +45,7 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 
 - Arabic content, correct RTL, mobile and desktop, navy/teal/white.
 - No patient information, prescription images, real phone numbers or sensitive personal traits.
-- Do not add OTP, route planning, AI briefs, WhatsApp or pharmacy modules in this phase.
+- Only the explicitly requested demo-code visit verification is now in scope. Do not add route planning, AI briefs, WhatsApp, SMS or pharmacy modules.
 - Ordinary page navigation remains necessary for the requested directory/profile/edit pages; do not confuse it with the deferred route-planning module.
 - Be explicit about actual verification results and incomplete features; never claim unperformed browser tests.
 

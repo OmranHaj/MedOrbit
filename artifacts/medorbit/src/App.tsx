@@ -14,12 +14,22 @@ import DoctorProfile from '@/pages/doctor-profile';
 import Products from '@/pages/products';
 import Visits from '@/pages/visits';
 import VisitNew from '@/pages/visit-new';
+import ClinicDemo from '@/pages/clinic-demo';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnMount: true, refetchOnWindowFocus: true, retry: 1 } },
 });
 
 function Router() {
+  return (
+    <Switch>
+      <Route path="/clinic-demo" component={ClinicDemo} />
+      <Route><ShellRoutes /></Route>
+    </Switch>
+  );
+}
+
+function ShellRoutes() {
   return (
     <Shell>
       <RoutedErrorBoundary>

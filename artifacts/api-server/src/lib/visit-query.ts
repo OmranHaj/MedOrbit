@@ -3,6 +3,7 @@ import { desc, eq } from "drizzle-orm";
 
 export const visitFields = {
   id: visitsTable.id, doctorId: visitsTable.doctorId, productId: visitsTable.productId,
+  pendingVisitId: visitsTable.pendingVisitId, verificationStatus: visitsTable.verificationStatus,
   outcome: visitsTable.outcome, notes: visitsTable.notes, date: visitsTable.date, createdAt: visitsTable.createdAt,
   doctorName: doctorsTable.name, doctorSpecialty: doctorsTable.specialty,
   doctorRegion: doctorsTable.region, productName: productsTable.name,

@@ -8,6 +8,111 @@
 import * as zod from 'zod';
 
 
+export const StartRepresentativeSessionResponse = zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "role": zod.enum(['representative', 'clinic_demo']),
+  "expiresAt": zod.string()
+})
+
+
+export const StartClinicDemoSessionResponse = zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "role": zod.enum(['representative', 'clinic_demo']),
+  "expiresAt": zod.string()
+})
+
+
+export const ListPendingVisitsResponseItem = zod.object({
+  "id": zod.string(),
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "representativeId": zod.string(),
+  "representativeLabel": zod.string(),
+  "expiresAt": zod.string(),
+  "serverTime": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'expired', 'locked', 'reported', 'superseded']),
+  "attemptsRemaining": zod.number().int(),
+  "verifiedAt": zod.string().nullable()
+})
+export const ListPendingVisitsResponse = zod.array(ListPendingVisitsResponseItem)
+
+
+
+
+
+export const StartPendingVisitBody = zod.object({
+  "doctorId": zod.number().int().min(1)
+})
+
+export const StartPendingVisitResponse = zod.object({
+  "id": zod.string(),
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "representativeId": zod.string(),
+  "representativeLabel": zod.string(),
+  "expiresAt": zod.string(),
+  "serverTime": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'expired', 'locked', 'reported', 'superseded']),
+  "attemptsRemaining": zod.number().int(),
+  "verifiedAt": zod.string().nullable()
+})
+
+
+export const VerifyPendingVisitParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const verifyPendingVisitBodyCodeMin = 6;
+export const verifyPendingVisitBodyCodeMax = 6;
+
+
+export const verifyPendingVisitBodyCodeRegExp = new RegExp('^[0-9]{6}$');
+
+
+export const VerifyPendingVisitBody = zod.object({
+  "code": zod.string().min(verifyPendingVisitBodyCodeMin).max(verifyPendingVisitBodyCodeMax).regex(verifyPendingVisitBodyCodeRegExp)
+})
+
+export const VerifyPendingVisitResponse = zod.object({
+  "id": zod.string(),
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "representativeId": zod.string(),
+  "representativeLabel": zod.string(),
+  "expiresAt": zod.string(),
+  "serverTime": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'expired', 'locked', 'reported', 'superseded']),
+  "attemptsRemaining": zod.number().int(),
+  "verifiedAt": zod.string().nullable()
+})
+
+
+
+
+
+export const ListClinicDemoVisitsQueryParams = zod.object({
+  "doctorId": zod.coerce.number().int().min(1).optional()
+})
+
+export const ListClinicDemoVisitsResponseItem = zod.object({
+  "id": zod.string(),
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "representativeId": zod.string(),
+  "representativeLabel": zod.string(),
+  "expiresAt": zod.string(),
+  "serverTime": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'expired', 'locked', 'reported', 'superseded']),
+  "attemptsRemaining": zod.number().int(),
+  "verifiedAt": zod.string().nullable()
+}).and(zod.object({
+  "code": zod.string()
+}))
+export const ListClinicDemoVisitsResponse = zod.array(ListClinicDemoVisitsResponseItem)
+
+
 export const listDoctorsQuerySearchMax = 150;
 
 export const listDoctorsQuerySpecialtyMax = 100;
@@ -292,20 +397,14 @@ export const ListVisitsQueryParams = zod.object({
   "doctorId": zod.coerce.number().int().min(1).optional()
 })
 
-
-
-export const listVisitsResponseOneNotesMin = 3;
-export const listVisitsResponseOneNotesMax = 2000;
-
-export const listVisitsResponseOneDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
-
-
 export const ListVisitsResponseItem = zod.object({
-  "doctorId": zod.number().int().min(1),
-  "productId": zod.number().int().min(1),
+  "doctorId": zod.number().int(),
+  "productId": zod.number().int(),
   "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
-  "notes": zod.string().min(listVisitsResponseOneNotesMin).max(listVisitsResponseOneNotesMax),
-  "date": zod.string().regex(listVisitsResponseOneDateRegExp)
+  "notes": zod.string(),
+  "date": zod.string(),
+  "pendingVisitId": zod.string().nullable(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
 }).and(zod.object({
   "id": zod.number().int(),
   "doctorName": zod.string(),
@@ -326,6 +425,7 @@ export const createVisitBodyDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
 
 export const CreateVisitBody = zod.object({
+  "pendingVisitId": zod.string().uuid(),
   "doctorId": zod.number().int().min(1),
   "productId": zod.number().int().min(1),
   "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
@@ -333,20 +433,14 @@ export const CreateVisitBody = zod.object({
   "date": zod.string().regex(createVisitBodyDateRegExp)
 })
 
-
-
-export const createVisitResponseOneNotesMin = 3;
-export const createVisitResponseOneNotesMax = 2000;
-
-export const createVisitResponseOneDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
-
-
 export const CreateVisitResponse = zod.object({
-  "doctorId": zod.number().int().min(1),
-  "productId": zod.number().int().min(1),
+  "doctorId": zod.number().int(),
+  "productId": zod.number().int(),
   "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
-  "notes": zod.string().min(createVisitResponseOneNotesMin).max(createVisitResponseOneNotesMax),
-  "date": zod.string().regex(createVisitResponseOneDateRegExp)
+  "notes": zod.string(),
+  "date": zod.string(),
+  "pendingVisitId": zod.string().nullable(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
 }).and(zod.object({
   "id": zod.number().int(),
   "doctorName": zod.string(),
@@ -355,14 +449,6 @@ export const CreateVisitResponse = zod.object({
   "productName": zod.string(),
   "createdAt": zod.string()
 }))
-
-
-
-
-export const getDashboardResponseRecentVisitsItemOneNotesMin = 3;
-export const getDashboardResponseRecentVisitsItemOneNotesMax = 2000;
-
-export const getDashboardResponseRecentVisitsItemOneDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
 
 export const GetDashboardResponse = zod.object({
@@ -381,11 +467,13 @@ export const GetDashboardResponse = zod.object({
   "count": zod.number().int()
 })),
   "recentVisits": zod.array(zod.object({
-  "doctorId": zod.number().int().min(1),
-  "productId": zod.number().int().min(1),
+  "doctorId": zod.number().int(),
+  "productId": zod.number().int(),
   "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
-  "notes": zod.string().min(getDashboardResponseRecentVisitsItemOneNotesMin).max(getDashboardResponseRecentVisitsItemOneNotesMax),
-  "date": zod.string().regex(getDashboardResponseRecentVisitsItemOneDateRegExp)
+  "notes": zod.string(),
+  "date": zod.string(),
+  "pendingVisitId": zod.string().nullable(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
 }).and(zod.object({
   "id": zod.number().int(),
   "doctorName": zod.string(),

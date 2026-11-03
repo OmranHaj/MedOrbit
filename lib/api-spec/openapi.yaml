@@ -11,6 +11,84 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /verification/representative-session:
+    post:
+      operationId: startRepresentativeSession
+      responses:
+        "200":
+          description: Server-issued anonymous demo representative identity, HttpOnly cookie
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoSession" }
+  /clinic-demo/session:
+    post:
+      operationId: startClinicDemoSession
+      responses:
+        "200":
+          description: Explicit simulator-only demo session, not real staff authentication
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoSession" }
+  /pending-visits:
+    get:
+      operationId: listPendingVisits
+      responses:
+        "200":
+          description: Most recent pending visit owned by this representative, never includes a code
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/PendingVisit" } }
+        "401": { $ref: "#/components/responses/BadRequest" }
+    post:
+      operationId: startPendingVisit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PendingVisitInput" }
+      responses:
+        "201":
+          description: Pending visit, code is not returned to the representative
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PendingVisit" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/BadRequest" }
+  /pending-visits/{id}/verify:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: verifyPendingVisit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerificationInput" }
+      responses:
+        "200":
+          description: Consumes the code exactly once, permitting one visit report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PendingVisit" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/BadRequest" }
+        "410": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/BadRequest" }
+  /clinic-demo/pending-visits:
+    get:
+      operationId: listClinicDemoVisits
+      parameters:
+        - { name: doctorId, in: query, schema: { type: integer, minimum: 1 } }
+      responses:
+        "200":
+          description: Active codes for simulated secretary only; requires separate demo clinic cookie
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ClinicDemoVisit" } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/BadRequest" }
   /doctors:
     get:
       operationId: listDoctors
@@ -99,6 +177,9 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Visit" }
         "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/BadRequest" }
+        "409": { $ref: "#/components/responses/BadRequest" }
   /dashboard:
     get:
       operationId: getDashboard
@@ -134,6 +215,47 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    DemoSession:
+      type: object
+      required: [id, label, role, expiresAt]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        role: { type: string, enum: [representative, clinic_demo] }
+        expiresAt: { type: string }
+    PendingVisitInput:
+      type: object
+      additionalProperties: false
+      required: [doctorId]
+      properties:
+        doctorId: { type: integer, minimum: 1 }
+    VerificationInput:
+      type: object
+      additionalProperties: false
+      required: [code]
+      properties:
+        code: { type: string, minLength: 6, maxLength: 6, pattern: "^[0-9]{6}$" }
+    PendingVisit:
+      type: object
+      required: [id, doctorId, doctorName, representativeId, representativeLabel, expiresAt, serverTime, status, attemptsRemaining, verifiedAt]
+      properties:
+        id: { type: string }
+        doctorId: { type: integer }
+        doctorName: { type: string }
+        representativeId: { type: string }
+        representativeLabel: { type: string }
+        expiresAt: { type: string }
+        serverTime: { type: string }
+        status: { type: string, enum: [pending, confirmed, expired, locked, reported, superseded] }
+        attemptsRemaining: { type: integer }
+        verifiedAt: { type: [string, "null"] }
+    ClinicDemoVisit:
+      allOf:
+        - { $ref: "#/components/schemas/PendingVisit" }
+        - type: object
+          required: [code]
+          properties:
+            code: { type: string }
     ApiError:
       type: object
       required: [error]
@@ -176,8 +298,9 @@ components:
     VisitInput:
       type: object
       additionalProperties: false
-      required: [doctorId, productId, outcome, notes, date]
+      required: [doctorId, productId, outcome, notes, date, pendingVisitId]
       properties:
+        pendingVisitId: { type: string, format: uuid }
         doctorId: { type: integer, minimum: 1 }
         productId: { type: integer, minimum: 1 }
         outcome: { $ref: "#/components/schemas/VisitOutcome" }
@@ -185,7 +308,16 @@ components:
         date: { type: string, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }
     Visit:
       allOf:
-        - { $ref: "#/components/schemas/VisitInput" }
+        - type: object
+          required: [doctorId, productId, outcome, notes, date, pendingVisitId, verificationStatus]
+          properties:
+            doctorId: { type: integer }
+            productId: { type: integer }
+            outcome: { $ref: "#/components/schemas/VisitOutcome" }
+            notes: { type: string }
+            date: { type: string }
+            pendingVisitId: { type: [string, "null"] }
+            verificationStatus: { type: string, enum: ["Confirmed by clinic demo code", "Unverified legacy report"] }
         - type: object
           required: [id, doctorName, doctorSpecialty, doctorRegion, productName, createdAt]
           properties:

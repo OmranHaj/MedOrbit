@@ -5,6 +5,65 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
+export type DemoSessionRole = typeof DemoSessionRole[keyof typeof DemoSessionRole];
+
+
+export const DemoSessionRole = {
+  representative: 'representative',
+  clinic_demo: 'clinic_demo',
+} as const;
+
+export interface DemoSession {
+  id: string;
+  label: string;
+  role: DemoSessionRole;
+  expiresAt: string;
+}
+
+export interface PendingVisitInput {
+  /** @minimum 1 */
+  doctorId: number;
+}
+
+export interface VerificationInput {
+  /**
+     * @minLength 6
+     * @maxLength 6
+     * @pattern ^[0-9]{6}$
+     */
+  code: string;
+}
+
+export type PendingVisitStatus = typeof PendingVisitStatus[keyof typeof PendingVisitStatus];
+
+
+export const PendingVisitStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  expired: 'expired',
+  locked: 'locked',
+  reported: 'reported',
+  superseded: 'superseded',
+} as const;
+
+export interface PendingVisit {
+  id: string;
+  doctorId: number;
+  doctorName: string;
+  representativeId: string;
+  representativeLabel: string;
+  expiresAt: string;
+  serverTime: string;
+  status: PendingVisitStatus;
+  attemptsRemaining: number;
+  /** @nullable */
+  verifiedAt: string | null;
+}
+
+export type ClinicDemoVisit = PendingVisit & {
+  code: string;
+};
+
 export interface ApiError {
   error: string;
 }
@@ -75,6 +134,7 @@ export const VisitOutcome = {
 } as const;
 
 export interface VisitInput {
+  pendingVisitId: string;
   /** @minimum 1 */
   doctorId: number;
   /** @minimum 1 */
@@ -89,7 +149,16 @@ export interface VisitInput {
   date: string;
 }
 
-export type Visit = VisitInput & {
+export type Visit = ({
+  doctorId: number;
+  productId: number;
+  outcome: VisitOutcome;
+  notes: string;
+  date: string;
+  /** @nullable */
+  pendingVisitId: string | null;
+  verificationStatus: 'Confirmed by clinic demo code' | 'Unverified legacy report';
+}) & {
   id: number;
   doctorName: string;
   doctorSpecialty: string;
@@ -128,6 +197,13 @@ export type BadRequestResponse = ApiError;
  * Record not found
  */
 export type NotFoundResponse = ApiError;
+
+export type ListClinicDemoVisitsParams = {
+/**
+ * @minimum 1
+ */
+doctorId?: number;
+};
 
 export type ListDoctorsParams = {
 /**

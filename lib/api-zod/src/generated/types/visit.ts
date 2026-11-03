@@ -5,9 +5,18 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
-import type { VisitInput } from './visitInput';
+import type { VisitOutcome } from './visitOutcome';
 
-export type Visit = VisitInput & {
+export type Visit = ({
+  doctorId: number;
+  productId: number;
+  outcome: VisitOutcome;
+  notes: string;
+  date: string;
+  /** @nullable */
+  pendingVisitId: string | null;
+  verificationStatus: 'Confirmed by clinic demo code' | 'Unverified legacy report';
+}) & {
   id: number;
   doctorName: string;
   doctorSpecialty: string;

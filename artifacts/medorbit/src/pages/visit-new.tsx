@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateVisit, useListDoctors, useListProducts, type VisitOutcome } from "@workspace/api-client-react";
 import { Loader2, Save } from "lucide-react";
 import { PageHeader, Panel, Field, Btn, Banner, ErrorState, Skel, LinkBtn, PrivacyNote } from "@/components/ui-kit";
+import { VisitVerification } from "@/components/verify/visit-verification";
+import { getListClinicDemoVisitsQueryKey, getListPendingVisitsQueryKey } from "@workspace/api-client-react";
 import { errMsg, invalidateVisits, OUTCOMES, todayISO } from "@/lib/format";
 
 type Errs = Partial<Record<"doctorId" | "productId" | "outcome" | "notes" | "date", string>>;
@@ -23,6 +25,10 @@ export default function VisitNew() {
   const [errs, setErrs] = useState<Errs>({});
   const [serverErr, setServerErr] = useState<string | null>(null);
   const today = todayISO();
+  const [userPicked, setUserPicked] = useState(/^\d+$/.test(pre));
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const recoverDoctor = useCallback((id: string) => setDoctorId((cur) => cur || id), []);
 
   const validate = (): Errs => {
     const e: Errs = {};
@@ -42,11 +48,13 @@ export default function VisitNew() {
     const e = validate();
     setErrs(e);
     if (Object.keys(e).length) { document.getElementById(Object.keys(e)[0])?.focus(); return; }
+    if (!pendingId) { setServerErr("أكّد الزيارة برمز العيادة التجريبي للطبيب المختار قبل الحفظ."); return; }
     try {
-      await m.mutateAsync({ data: { doctorId: Number(doctorId), productId: Number(productId), outcome: outcome as VisitOutcome, notes: notes.trim(), date } });
-      await invalidateVisits(qc);
+      await m.mutateAsync({ data: { pendingVisitId: pendingId, doctorId: Number(doctorId), productId: Number(productId), outcome: outcome as VisitOutcome, notes: notes.trim(), date } });
+      setSaved(true);
+      await Promise.all([invalidateVisits(qc), qc.invalidateQueries({ queryKey: getListPendingVisitsQueryKey() }), qc.invalidateQueries({ queryKey: getListClinicDemoVisitsQueryKey() })]);
       nav(pre ? `/doctors/${doctorId}?saved=visit` : "/visits?saved=1");
-    } catch (er) { setServerErr(errMsg(er, "تعذّر حفظ التقرير. حاول مجدداً.")); }
+    } catch (er) { qc.invalidateQueries({ queryKey: getListPendingVisitsQueryKey() }); setServerErr(errMsg(er, "تعذّر حفظ التقرير. حاول مجدداً.")); }
   };
 
   const depsLoading = doctors.isLoading || products.isLoading;
@@ -61,12 +69,15 @@ export default function VisitNew() {
             {serverErr && <Banner kind="error">{serverErr}</Banner>}
             {doctors.data && doctors.data.length === 0 && <Banner kind="error">لا يوجد أطباء بعد. أضف طبيباً أولاً من صفحة الأطباء.</Banner>}
             <div className="grid gap-5 sm:grid-cols-2">
+              <div className="sm:col-span-2 space-y-4">
               <Field label="الطبيب" htmlFor="doctorId" error={errs.doctorId}>
-                <select id="doctorId" data-testid="select-doctor" className="field-input" value={doctorId} onChange={(e) => setDoctorId(e.target.value)} aria-invalid={!!errs.doctorId} disabled={!doctors.data}>
+                <select id="doctorId" data-testid="select-doctor" className="field-input" value={doctorId} onChange={(e) => { setUserPicked(true); setPendingId(null); setDoctorId(e.target.value); }} aria-invalid={!!errs.doctorId} disabled={!doctors.data}>
                   <option value="">اختر الطبيب...</option>
                   {doctors.data?.map((d) => <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>)}
                 </select>
               </Field>
+              <VisitVerification doctorId={doctorId} doctorName={doctors.data?.find((d) => String(d.id) === doctorId)?.name} userPicked={userPicked} onRecoverDoctor={recoverDoctor} onEligible={setPendingId} />
+              </div>
               <Field label="المنتج الذي نوقش" htmlFor="productId" error={errs.productId}>
                 <select id="productId" data-testid="select-product" className="field-input" value={productId} onChange={(e) => setProductId(e.target.value)} aria-invalid={!!errs.productId} disabled={!products.data}>
                   <option value="">اختر المنتج...</option>
@@ -93,7 +104,7 @@ export default function VisitNew() {
             </Field>
             <PrivacyNote compact />
             <div className="flex justify-end border-t border-border pt-5">
-              <Btn type="submit" variant="teal" disabled={m.isPending || !doctors.data || !products.data} data-testid="button-submit-visit" className="w-full sm:w-auto">
+              <Btn type="submit" variant="teal" disabled={m.isPending || saved || !pendingId || !doctors.data || !products.data} data-testid="button-submit-visit" className="w-full sm:w-auto">
                 {m.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{m.isPending ? "جارٍ الحفظ..." : "حفظ التقرير"}
               </Btn>
             </div>

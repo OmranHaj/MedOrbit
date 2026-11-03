@@ -5,8 +5,11 @@
  */
 import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { demoClient } from "./lib/demo-api.mjs";
 
 const base = process.env.TEST_BASE_URL || "http://localhost:80/api";
+const representative = demoClient(base);
+const clinicDemo = demoClient(base);
 const statePath = new URL("../generated-artifacts/verification-state.json", import.meta.url);
 const resultsPath = new URL("../generated-artifacts/verification-results.json", import.meta.url);
 await mkdir(new URL("../generated-artifacts/", import.meta.url), { recursive: true });
@@ -15,13 +18,9 @@ const results = afterRestart ? JSON.parse(await readFile(resultsPath, "utf8")) :
 let state = afterRestart ? JSON.parse(await readFile(statePath, "utf8")) : {};
 
 async function api(path, method = "GET", body, expected = 200) {
-  const res = await fetch(`${base}${path}`, {
-    method, headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-  const value = await res.json();
-  assert.equal(res.status, expected, `${method} ${path}: ${JSON.stringify(value)}`);
-  return value;
+  const { status, data } = await representative(path, method, body);
+  assert.equal(status, expected, `${method} ${path}: unexpected response status`);
+  return data;
 }
 async function test(name, work) {
   try {
@@ -38,10 +37,12 @@ async function test(name, work) {
 }
 
 if (!afterRestart) {
-  await test("تحميل الأطباء الثلاثة والمنتجات الخيالية الثلاثة من الخادم", async () => {
+  state.representativeSessionId = (await api("/verification/representative-session", "POST")).id;
+  state.clinicSessionId = (await clinicDemo("/clinic-demo/session", "POST")).data.id;
+  await test("تحميل الأطباء والمنتجات الخيالية المحفوظة من الخادم", async () => {
     const [doctors, products, dashboard] = await Promise.all([api("/doctors"), api("/products"), api("/dashboard")]);
-    assert.equal(doctors.length, 3);
-    assert.equal(products.length, 3);
+    assert.ok(doctors.length >= 3);
+    assert.ok(products.length >= 3);
     state.productId = products[0].id;
     state.baseline = dashboard;
   });
@@ -78,8 +79,14 @@ if (!afterRestart) {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Damascus",
     year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   await test("إنشاء تقرير زيارة بارتباط فعلي بالطبيب والمنتج", async () => {
+    const pending = await api("/pending-visits", "POST", { doctorId: state.doctorId }, 201);
+    state.pendingVisitId = pending.id;
+    const delivery = await clinicDemo("/clinic-demo/pending-visits");
+    const code = delivery.data.find((v) => v.id === pending.id).code;
+    await api(`/pending-visits/${pending.id}/verify`, "POST", { code });
     state.visitInput = { doctorId: state.doctorId, productId: state.productId,
-      outcome: "مهتم", notes: "ملاحظات مهنية تجريبية خيالية فقط، دون معلومات مرضى.", date: today };
+      outcome: "مهتم", notes: "ملاحظات مهنية تجريبية خيالية فقط، دون معلومات مرضى.", date: today,
+      pendingVisitId: pending.id };
     const visit = await api("/visits", "POST", state.visitInput, 201);
     state.visitId = visit.id;
     for (const key of Object.keys(state.visitInput)) assert.equal(visit[key], state.visitInput[key]);
