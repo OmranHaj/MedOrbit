@@ -14,6 +14,7 @@ import DoctorProfile from '@/pages/doctor-profile';
 import Products from '@/pages/products';
 import Visits from '@/pages/visits';
 import VisitNew from '@/pages/visit-new';
+import SmartRoute from '@/pages/smart-route';
 import ClinicDemo from '@/pages/clinic-demo';
 
 const queryClient = new QueryClient({
@@ -42,6 +43,7 @@ function ShellRoutes() {
           <Route path="/products" component={Products} />
           <Route path="/visits" component={Visits} />
           <Route path="/visits/new" component={VisitNew} />
+          <Route path="/smart-route" component={SmartRoute} />
           <Route component={NotFound} />
         </Switch>
       </RoutedErrorBoundary>

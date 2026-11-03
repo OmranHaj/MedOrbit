@@ -36,17 +36,19 @@ Arabic RTL, mobile-first university hackathon app for a fictional doctor directo
 - The requested clinic OTP is a separate, explicitly public-activatable DEMO simulator, not real clinic staff authentication or proof of physical presence. Representatives have server-issued opaque demo sessions, not browser-supplied identities. Preserve the separation between the representative form and the code-display page.
 - OTP verification uses only a context-bound keyed hash. A separately keyed authenticated-encryption envelope exists solely so the simulated secretary can reload its delivery page without storing plaintext codes. Never send this envelope, the hash, or a generated code to representative endpoints.
 - Existing reports stay unverified legacy records; only backend-verified new visits may receive `Confirmed by clinic demo code`, and each pending visit permits one report.
+- Smart Route is a read-only, approximate same-day tour proposal, separate from visits and OTP verification. **Why:** a hypothetical plan must never imply attendance, create reports, or bypass clinic confirmation. **How to apply:** keep all future planning links subject to the existing verification/report flow.
+- Route estimates use saved fictional doctor coordinates/windows and a disclosed fixed speed, not live roads/traffic or global optimization. **Why:** this is a beginner-friendly hackathon heuristic without an external routing service. Preserve these limits in future UI claims.
 
 ## Product
 
-- Search, add, edit and view fictional doctors; browse three fictional products; save professional visit reports; query actual saved records in the company dashboard.
+- Search, add, edit and view fictional doctors; browse three fictional products; save professional visit reports; query actual saved records in the company dashboard; calculate a time-window-aware fictional Smart Route tour.
 
 ## User preferences
 
 - Arabic content, correct RTL, mobile and desktop, navy/teal/white.
 - No patient information, prescription images, real phone numbers or sensitive personal traits.
-- Only the explicitly requested demo-code visit verification is now in scope. Do not add route planning, AI briefs, WhatsApp, SMS or pharmacy modules.
-- Ordinary page navigation remains necessary for the requested directory/profile/edit pages; do not confuse it with the deferred route-planning module.
+- Demo-code verification and the explicitly requested simple Smart Route planner are in scope. Do not add AI briefs, WhatsApp, SMS, pharmacy modules, live traffic or external road-navigation integrations.
+- Extend current code and preserve all saved data; seed additions must never overwrite edited doctor records.
 - Be explicit about actual verification results and incomplete features; never claim unperformed browser tests.
 
 ## Gotchas

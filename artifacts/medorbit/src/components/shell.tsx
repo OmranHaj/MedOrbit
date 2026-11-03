@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { ClipboardList, LayoutDashboard, Package, Stethoscope, Plus } from "lucide-react";
+import { Route as RouteIcon, ClipboardList, LayoutDashboard, Package, Stethoscope, Plus } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "لوحة الشركة", icon: LayoutDashboard, id: "dashboard" },
   { href: "/doctors", label: "الأطباء", icon: Stethoscope, id: "doctors" },
   { href: "/visits", label: "تقارير الزيارات", icon: ClipboardList, id: "visits" },
   { href: "/products", label: "المنتجات", icon: Package, id: "products" },
+  { href: "/smart-route", label: "الجولة", icon: RouteIcon, id: "smart-route" },
 ];
 
 export function Logo({ light = false }: { light?: boolean }) {
@@ -61,7 +62,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl">{children}</div>
       </main>
 
-      <nav aria-label="التنقل السفلي" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav aria-label="التنقل السفلي" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {NAV.map((n) => {
           const a = active(loc, n.href);
           return (

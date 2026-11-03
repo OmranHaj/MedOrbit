@@ -1,5 +1,6 @@
 import { db, doctorsTable, productsTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
+import { tourDemoDoctors } from "./tour-demo-doctors";
 
 /** Fictional fixtures only. Existing edited records are never overwritten. No DDL. */
 export async function seedDemoData(): Promise<void> {
@@ -24,6 +25,7 @@ export async function seedDemoData(): Promise<void> {
         latitude: 33.53, longitude: 36.31, visitingStart: "10:00", visitingEnd: "14:00",
         scientificInterests: "مراجعة الأدلة العلمية والتثقيف المهني؛ بيانات تجريبية لا تمثل طبيبًا حقيقيًا.",
       },
+      ...tourDemoDoctors,
     ]).onConflictDoNothing({ target: doctorsTable.demoKey });
     await tx.insert(productsTable).values([
       {

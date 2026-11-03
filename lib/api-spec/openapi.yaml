@@ -11,6 +11,30 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /smart-route/options:
+    get:
+      operationId: getSmartRouteOptions
+      responses:
+        "200":
+          description: Saved doctor regions and predefined fictional starting coordinates
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SmartRouteOptions" }
+  /smart-route/plan:
+    post:
+      operationId: planSmartRoute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SmartRouteInput" }
+      responses:
+        "200":
+          description: Read-only approximate greedy tour, not globally optimal or traffic routing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SmartRoutePlan" }
+        "400": { $ref: "#/components/responses/BadRequest" }
   /verification/representative-session:
     post:
       operationId: startRepresentativeSession
@@ -215,6 +239,86 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    DemoStartPoint:
+      type: object
+      required: [id, name, latitude, longitude]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+    SmartRouteOptions:
+      type: object
+      required: [regions, startPoints, defaultVisitDurationMinutes, defaultTravelSpeedKmh, maxDoctorsPerRegion, demoRegion, assumptions]
+      properties:
+        regions: { type: array, items: { type: string } }
+        startPoints: { type: array, items: { $ref: "#/components/schemas/DemoStartPoint" } }
+        defaultVisitDurationMinutes: { type: integer }
+        defaultTravelSpeedKmh: { type: number }
+        maxDoctorsPerRegion: { type: integer }
+        demoRegion: { type: string }
+        assumptions: { type: array, items: { type: string } }
+    SmartRouteInput:
+      type: object
+      additionalProperties: false
+      required: [region, startPointId, startTime]
+      properties:
+        region: { type: string, minLength: 2, maxLength: 100 }
+        startPointId: { type: string, minLength: 1, maxLength: 80 }
+        startTime: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$" }
+        visitDurationMinutes: { type: integer, minimum: 1, maximum: 120, default: 15 }
+        travelSpeedKmh: { type: number, minimum: 1, maximum: 120, default: 25 }
+    SmartRouteStop:
+      type: object
+      required: [order, doctorId, doctorName, region, visitingStart, visitingEnd, latitude, longitude, distanceKm, travelMinutes, arrivalTime, visitStartTime, departureTime, waitingMinutes]
+      properties:
+        order: { type: integer }
+        doctorId: { type: integer }
+        doctorName: { type: string }
+        region: { type: string }
+        visitingStart: { type: string }
+        visitingEnd: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        distanceKm: { type: number }
+        travelMinutes: { type: integer }
+        arrivalTime: { type: string }
+        visitStartTime: { type: string }
+        departureTime: { type: string }
+        waitingMinutes: { type: integer }
+    SmartRouteOmission:
+      type: object
+      required: [doctorId, doctorName, visitingStart, visitingEnd, reasonCode, reason, estimatedArrivalTime, estimatedDepartureTime]
+      properties:
+        doctorId: { type: integer }
+        doctorName: { type: string }
+        visitingStart: { type: string }
+        visitingEnd: { type: string }
+        reasonCode: { type: string, enum: [window_closed_at_start, insufficient_window, unreachable_from_start, cannot_fit_after_selected_visits, invalid_doctor_data] }
+        reason: { type: string }
+        estimatedArrivalTime: { type: [string, "null"] }
+        estimatedDepartureTime: { type: [string, "null"] }
+    SmartRoutePlan:
+      type: object
+      required: [region, startPoint, startTime, endTime, visitDurationMinutes, travelSpeedKmh, consideredDoctorCount, visitedDoctorCount, totalDistanceKm, totalTravelMinutes, totalWaitingMinutes, totalVisitMinutes, totalDurationMinutes, stops, omitted, assumptions, method]
+      properties:
+        region: { type: string }
+        startPoint: { $ref: "#/components/schemas/DemoStartPoint" }
+        startTime: { type: string }
+        endTime: { type: string }
+        visitDurationMinutes: { type: integer }
+        travelSpeedKmh: { type: number }
+        consideredDoctorCount: { type: integer }
+        visitedDoctorCount: { type: integer }
+        totalDistanceKm: { type: number }
+        totalTravelMinutes: { type: integer }
+        totalWaitingMinutes: { type: integer }
+        totalVisitMinutes: { type: integer }
+        totalDurationMinutes: { type: integer }
+        stops: { type: array, items: { $ref: "#/components/schemas/SmartRouteStop" } }
+        omitted: { type: array, items: { $ref: "#/components/schemas/SmartRouteOmission" } }
+        assumptions: { type: array, items: { type: string } }
+        method: { type: string }
     DemoSession:
       type: object
       required: [id, label, role, expiresAt]

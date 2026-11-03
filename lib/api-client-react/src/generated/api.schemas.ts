@@ -5,6 +5,109 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
+export interface DemoStartPoint {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface SmartRouteOptions {
+  regions: string[];
+  startPoints: DemoStartPoint[];
+  defaultVisitDurationMinutes: number;
+  defaultTravelSpeedKmh: number;
+  maxDoctorsPerRegion: number;
+  demoRegion: string;
+  assumptions: string[];
+}
+
+export interface SmartRouteInput {
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  region: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  startPointId: string;
+  /** @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$ */
+  startTime: string;
+  /**
+     * @minimum 1
+     * @maximum 120
+     */
+  visitDurationMinutes?: number;
+  /**
+     * @minimum 1
+     * @maximum 120
+     */
+  travelSpeedKmh?: number;
+}
+
+export interface SmartRouteStop {
+  order: number;
+  doctorId: number;
+  doctorName: string;
+  region: string;
+  visitingStart: string;
+  visitingEnd: string;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+  travelMinutes: number;
+  arrivalTime: string;
+  visitStartTime: string;
+  departureTime: string;
+  waitingMinutes: number;
+}
+
+export type SmartRouteOmissionReasonCode = typeof SmartRouteOmissionReasonCode[keyof typeof SmartRouteOmissionReasonCode];
+
+
+export const SmartRouteOmissionReasonCode = {
+  window_closed_at_start: 'window_closed_at_start',
+  insufficient_window: 'insufficient_window',
+  unreachable_from_start: 'unreachable_from_start',
+  cannot_fit_after_selected_visits: 'cannot_fit_after_selected_visits',
+  invalid_doctor_data: 'invalid_doctor_data',
+} as const;
+
+export interface SmartRouteOmission {
+  doctorId: number;
+  doctorName: string;
+  visitingStart: string;
+  visitingEnd: string;
+  reasonCode: SmartRouteOmissionReasonCode;
+  reason: string;
+  /** @nullable */
+  estimatedArrivalTime: string | null;
+  /** @nullable */
+  estimatedDepartureTime: string | null;
+}
+
+export interface SmartRoutePlan {
+  region: string;
+  startPoint: DemoStartPoint;
+  startTime: string;
+  endTime: string;
+  visitDurationMinutes: number;
+  travelSpeedKmh: number;
+  consideredDoctorCount: number;
+  visitedDoctorCount: number;
+  totalDistanceKm: number;
+  totalTravelMinutes: number;
+  totalWaitingMinutes: number;
+  totalVisitMinutes: number;
+  totalDurationMinutes: number;
+  stops: SmartRouteStop[];
+  omitted: SmartRouteOmission[];
+  assumptions: string[];
+  method: string;
+}
+
 export type DemoSessionRole = typeof DemoSessionRole[keyof typeof DemoSessionRole];
 
 

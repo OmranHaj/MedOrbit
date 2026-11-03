@@ -39,6 +39,9 @@ import type {
   PendingVisit,
   PendingVisitInput,
   Product,
+  SmartRouteInput,
+  SmartRouteOptions,
+  SmartRoutePlan,
   VerificationInput,
   Visit,
   VisitInput
@@ -70,6 +73,183 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetSmartRouteOptionsUrl = () => {
+
+
+
+
+  return `/api/smart-route/options`
+}
+
+export const getSmartRouteOptions = async ( options?: Parameters<typeof customFetch>[1]): Promise<SmartRouteOptions> => {
+
+  return customFetch<SmartRouteOptions>(getGetSmartRouteOptionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSmartRouteOptionsQueryKey = () => {
+    return [
+    `/api/smart-route/options`
+    ] as const;
+    }
+
+
+export const getGetSmartRouteOptionsQueryOptions = <TData = Awaited<ReturnType<typeof getSmartRouteOptions>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSmartRouteOptionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSmartRouteOptions>>> = ({ signal }) => getSmartRouteOptions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSmartRouteOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getSmartRouteOptions>>>
+export type GetSmartRouteOptionsQueryError = ErrorType<unknown>
+
+
+export function useGetSmartRouteOptions<TData = Awaited<ReturnType<typeof getSmartRouteOptions>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSmartRouteOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getSmartRouteOptions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSmartRouteOptions<TData = Awaited<ReturnType<typeof getSmartRouteOptions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSmartRouteOptions>>,
+          TError,
+          Awaited<ReturnType<typeof getSmartRouteOptions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSmartRouteOptions<TData = Awaited<ReturnType<typeof getSmartRouteOptions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSmartRouteOptions<TData = Awaited<ReturnType<typeof getSmartRouteOptions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSmartRouteOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSmartRouteOptionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPlanSmartRouteUrl = () => {
+
+
+
+
+  return `/api/smart-route/plan`
+}
+
+export const planSmartRoute = async (smartRouteInput: SmartRouteInput, options?: Parameters<typeof customFetch>[1]): Promise<SmartRoutePlan> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<SmartRoutePlan>(getPlanSmartRouteUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(smartRouteInput)
+  }
+);}
+
+
+
+
+
+export const getPlanSmartRouteMutationKey = () => ['planSmartRoute'] as const;
+
+export const getPlanSmartRouteMutationOptions = <TError = ErrorType<BadRequestResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof planSmartRoute>>, TError,PlanSmartRouteMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof planSmartRoute>>, TError,PlanSmartRouteMutationVariables, TContext> => {
+
+const mutationKey = getPlanSmartRouteMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof planSmartRoute>>, PlanSmartRouteMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  planSmartRoute(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PlanSmartRouteMutationResult = NonNullable<Awaited<ReturnType<typeof planSmartRoute>>>
+    export type PlanSmartRouteMutationBody = BodyType<SmartRouteInput>
+    export type PlanSmartRouteMutationError = ErrorType<BadRequestResponse>
+    export type PlanSmartRouteMutationVariables = {data: BodyType<SmartRouteInput>}
+
+    export const usePlanSmartRoute = <TError = ErrorType<BadRequestResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof planSmartRoute>>, TError,PlanSmartRouteMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof planSmartRoute>>,
+        TError,
+        PlanSmartRouteMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPlanSmartRouteMutationOptions(options), queryClient);
+    }
 
 export const getStartRepresentativeSessionUrl = () => {
 

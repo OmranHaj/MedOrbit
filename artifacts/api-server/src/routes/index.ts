@@ -5,6 +5,7 @@ import productsRouter from "./products";
 import visitsRouter from "./visits";
 import dashboardRouter from "./dashboard";
 import visitVerificationRouter from "./visit-verification";
+import smartRouteRouter from "./smart-route";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(productsRouter);
 router.use(visitsRouter);
 router.use(dashboardRouter);
 router.use(visitVerificationRouter);
+router.use(smartRouteRouter);
 
 export default router;

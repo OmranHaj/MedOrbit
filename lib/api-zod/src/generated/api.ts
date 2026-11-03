@@ -8,6 +8,94 @@
 import * as zod from 'zod';
 
 
+export const GetSmartRouteOptionsResponse = zod.object({
+  "regions": zod.array(zod.string()),
+  "startPoints": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "latitude": zod.number(),
+  "longitude": zod.number()
+})),
+  "defaultVisitDurationMinutes": zod.number().int(),
+  "defaultTravelSpeedKmh": zod.number(),
+  "maxDoctorsPerRegion": zod.number().int(),
+  "demoRegion": zod.string(),
+  "assumptions": zod.array(zod.string())
+})
+
+
+export const planSmartRouteBodyRegionMin = 2;
+export const planSmartRouteBodyRegionMax = 100;
+
+export const planSmartRouteBodyStartPointIdMax = 80;
+
+export const planSmartRouteBodyStartTimeRegExp = new RegExp('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+export const planSmartRouteBodyVisitDurationMinutesDefault = 15;
+export const planSmartRouteBodyVisitDurationMinutesMax = 120;
+
+export const planSmartRouteBodyTravelSpeedKmhDefault = 25;
+export const planSmartRouteBodyTravelSpeedKmhMax = 120;
+
+
+
+export const PlanSmartRouteBody = zod.object({
+  "region": zod.string().min(planSmartRouteBodyRegionMin).max(planSmartRouteBodyRegionMax),
+  "startPointId": zod.string().min(1).max(planSmartRouteBodyStartPointIdMax),
+  "startTime": zod.string().regex(planSmartRouteBodyStartTimeRegExp),
+  "visitDurationMinutes": zod.number().int().min(1).max(planSmartRouteBodyVisitDurationMinutesMax).default(planSmartRouteBodyVisitDurationMinutesDefault),
+  "travelSpeedKmh": zod.number().min(1).max(planSmartRouteBodyTravelSpeedKmhMax).default(planSmartRouteBodyTravelSpeedKmhDefault)
+})
+
+export const PlanSmartRouteResponse = zod.object({
+  "region": zod.string(),
+  "startPoint": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "latitude": zod.number(),
+  "longitude": zod.number()
+}),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "visitDurationMinutes": zod.number().int(),
+  "travelSpeedKmh": zod.number(),
+  "consideredDoctorCount": zod.number().int(),
+  "visitedDoctorCount": zod.number().int(),
+  "totalDistanceKm": zod.number(),
+  "totalTravelMinutes": zod.number().int(),
+  "totalWaitingMinutes": zod.number().int(),
+  "totalVisitMinutes": zod.number().int(),
+  "totalDurationMinutes": zod.number().int(),
+  "stops": zod.array(zod.object({
+  "order": zod.number().int(),
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "region": zod.string(),
+  "visitingStart": zod.string(),
+  "visitingEnd": zod.string(),
+  "latitude": zod.number(),
+  "longitude": zod.number(),
+  "distanceKm": zod.number(),
+  "travelMinutes": zod.number().int(),
+  "arrivalTime": zod.string(),
+  "visitStartTime": zod.string(),
+  "departureTime": zod.string(),
+  "waitingMinutes": zod.number().int()
+})),
+  "omitted": zod.array(zod.object({
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "visitingStart": zod.string(),
+  "visitingEnd": zod.string(),
+  "reasonCode": zod.enum(['window_closed_at_start', 'insufficient_window', 'unreachable_from_start', 'cannot_fit_after_selected_visits', 'invalid_doctor_data']),
+  "reason": zod.string(),
+  "estimatedArrivalTime": zod.string().nullable(),
+  "estimatedDepartureTime": zod.string().nullable()
+})),
+  "assumptions": zod.array(zod.string()),
+  "method": zod.string()
+})
+
+
 export const StartRepresentativeSessionResponse = zod.object({
   "id": zod.string(),
   "label": zod.string(),
