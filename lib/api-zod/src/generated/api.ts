@@ -8,6 +8,90 @@
 import * as zod from 'zod';
 
 
+
+
+
+export const GetDoctorBriefingParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+
+
+
+
+
+export const GetDoctorBriefingResponse = zod.object({
+  "doctorId": zod.number().int(),
+  "doctorName": zod.string(),
+  "label": zod.enum(['ملخص آلي منظّم']),
+  "engine": zod.enum(['rules']),
+  "generativeAiUsed": zod.literal(false),
+  "generatedAt": zod.string(),
+  "totalVisitCount": zod.number().int(),
+  "reviewedVisitCount": zod.number().int(),
+  "timeline": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "outcome": zod.enum(['مهتم', 'متابعة لاحقة', 'غير مهتم', 'لم تتم الزيارة']),
+  "notesExcerpt": zod.string().nullable(),
+  "notesWithheld": zod.boolean(),
+  "citation": zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})
+})),
+  "productsDiscussed": zod.array(zod.object({
+  "productId": zod.number().int(),
+  "productName": zod.string(),
+  "recordCount": zod.number().int(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "declaredScientificInterests": zod.object({
+  "text": zod.string().nullable(),
+  "sourceField": zod.enum(['scientificInterests']),
+  "profileCreatedAt": zod.string(),
+  "visitCitations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})),
+  "notice": zod.string()
+}),
+  "outstandingRequests": zod.array(zod.object({
+  "quote": zod.string(),
+  "state": zod.enum(['untracked']),
+  "notice": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "suggestedFollowUp": zod.array(zod.object({
+  "text": zod.string(),
+  "citations": zod.array(zod.object({
+  "visitId": zod.number().int(),
+  "date": zod.string(),
+  "excerpt": zod.string(),
+  "verificationStatus": zod.enum(['Confirmed by clinic demo code', 'Unverified legacy report'])
+})).min(1)
+})),
+  "privacyOmittedVisitCount": zod.number().int(),
+  "limitations": zod.array(zod.string())
+})
+
+
 export const GetSmartRouteOptionsResponse = zod.object({
   "regions": zod.array(zod.string()),
   "startPoints": zod.array(zod.object({

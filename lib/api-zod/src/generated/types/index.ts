@@ -8,6 +8,15 @@
 
 export * from './apiError';
 export * from './badRequestResponse';
+export * from './briefingCitation';
+export * from './briefingCitationVerificationStatus';
+export * from './briefingFollowUp';
+export * from './briefingInterests';
+export * from './briefingInterestsSourceField';
+export * from './briefingProduct';
+export * from './briefingRequest';
+export * from './briefingRequestState';
+export * from './briefingTimelineItem';
 export * from './clinicDemoVisit';
 export * from './countGroup';
 export * from './dashboard';
@@ -15,6 +24,9 @@ export * from './demoSession';
 export * from './demoSessionRole';
 export * from './demoStartPoint';
 export * from './doctor';
+export * from './doctorBriefing';
+export * from './doctorBriefingEngine';
+export * from './doctorBriefingLabel';
 export * from './doctorInput';
 export * from './healthStatus';
 export * from './listClinicDemoVisitsParams';

@@ -3,6 +3,7 @@ import { useParams, useSearch } from "wouter";
 import { useGetDoctor, useListVisits } from "@workspace/api-client-react";
 import { Clock, MapPin, Pencil, Plus, Navigation, BookOpen, ClipboardList, ArrowRight } from "lucide-react";
 import { Panel, Skel, ErrorState, EmptyState, LinkBtn, Banner } from "@/components/ui-kit";
+import { DoctorBriefing } from "@/components/doctor-briefing";
 import { VisitCard } from "@/components/visit-row";
 import { fmtDate, fmtNum, fmtTime } from "@/lib/format";
 
@@ -36,6 +37,8 @@ export default function DoctorProfile() {
           </div>
         </div>
       </div>
+
+      <DoctorBriefing key={d.id} doctorId={d.id} />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Panel className="divide-y divide-border p-1 lg:col-span-1 self-start">

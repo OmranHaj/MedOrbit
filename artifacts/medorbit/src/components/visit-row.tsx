@@ -6,7 +6,7 @@ import { fmtDate } from "@/lib/format";
 
 export function VisitCard({ v, showDoctor = true }: { v: Visit; showDoctor?: boolean }) {
   return (
-    <article className="rise rounded-xl border border-border bg-card p-4 transition hover:border-accent/40" data-testid={`card-visit-${v.id}`}>
+    <article id={`visit-${v.id}`} className="rise scroll-mt-24 rounded-xl border border-border bg-card p-4 transition hover:border-accent/40" data-testid={`card-visit-${v.id}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           {showDoctor ? (

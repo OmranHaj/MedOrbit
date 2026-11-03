@@ -11,6 +11,19 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /doctors/{id}/briefing:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    get:
+      operationId: getDoctorBriefing
+      responses:
+        "200":
+          description: Grounded structured Arabic summary, explicitly not generative AI
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DoctorBriefing" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /smart-route/options:
     get:
       operationId: getSmartRouteOptions
@@ -239,6 +252,76 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    BriefingCitation:
+      type: object
+      required: [visitId, date, excerpt, verificationStatus]
+      properties:
+        visitId: { type: integer }
+        date: { type: string }
+        excerpt: { type: string }
+        verificationStatus: { type: string, enum: ["Confirmed by clinic demo code", "Unverified legacy report"] }
+    BriefingTimelineItem:
+      type: object
+      required: [visitId, date, productId, productName, outcome, notesExcerpt, notesWithheld, citation]
+      properties:
+        visitId: { type: integer }
+        date: { type: string }
+        productId: { type: integer }
+        productName: { type: string }
+        outcome: { $ref: "#/components/schemas/VisitOutcome" }
+        notesExcerpt: { type: [string, "null"] }
+        notesWithheld: { type: boolean }
+        citation: { $ref: "#/components/schemas/BriefingCitation" }
+    BriefingProduct:
+      type: object
+      required: [productId, productName, recordCount, citations]
+      properties:
+        productId: { type: integer }
+        productName: { type: string }
+        recordCount: { type: integer }
+        citations: { type: array, minItems: 1, items: { $ref: "#/components/schemas/BriefingCitation" } }
+    BriefingInterests:
+      type: object
+      required: [text, sourceField, profileCreatedAt, visitCitations, notice]
+      properties:
+        text: { type: [string, "null"] }
+        sourceField: { type: string, enum: [scientificInterests] }
+        profileCreatedAt: { type: string }
+        visitCitations: { type: array, items: { $ref: "#/components/schemas/BriefingCitation" } }
+        notice: { type: string }
+    BriefingRequest:
+      type: object
+      required: [quote, state, notice, citations]
+      properties:
+        quote: { type: string }
+        state: { type: string, enum: [untracked] }
+        notice: { type: string }
+        citations: { type: array, minItems: 1, items: { $ref: "#/components/schemas/BriefingCitation" } }
+    BriefingFollowUp:
+      type: object
+      required: [text, citations]
+      properties:
+        text: { type: string }
+        citations: { type: array, minItems: 1, items: { $ref: "#/components/schemas/BriefingCitation" } }
+    DoctorBriefing:
+      type: object
+      required: [doctorId, doctorName, label, engine, generativeAiUsed, generatedAt, totalVisitCount, reviewedVisitCount, timeline, productsDiscussed, declaredScientificInterests, outstandingRequests, suggestedFollowUp, privacyOmittedVisitCount, limitations]
+      properties:
+        doctorId: { type: integer }
+        doctorName: { type: string }
+        label: { type: string, enum: ["ملخص آلي منظّم"] }
+        engine: { type: string, enum: [rules] }
+        generativeAiUsed: { type: boolean, enum: [false] }
+        generatedAt: { type: string }
+        totalVisitCount: { type: integer }
+        reviewedVisitCount: { type: integer }
+        timeline: { type: array, items: { $ref: "#/components/schemas/BriefingTimelineItem" } }
+        productsDiscussed: { type: array, items: { $ref: "#/components/schemas/BriefingProduct" } }
+        declaredScientificInterests: { $ref: "#/components/schemas/BriefingInterests" }
+        outstandingRequests: { type: array, items: { $ref: "#/components/schemas/BriefingRequest" } }
+        suggestedFollowUp: { type: array, items: { $ref: "#/components/schemas/BriefingFollowUp" } }
+        privacyOmittedVisitCount: { type: integer }
+        limitations: { type: array, items: { type: string } }
     DemoStartPoint:
       type: object
       required: [id, name, latitude, longitude]

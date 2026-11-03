@@ -52,6 +52,7 @@ export async function invalidateDoctors(qc: QueryClient, id?: number) {
     id ? qc.invalidateQueries({ queryKey: getGetDoctorQueryKey(id) }) : Promise.resolve(),
     qc.invalidateQueries({ queryKey: getListVisitsQueryKey() }),
     qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() }),
+    invalidateBriefings(qc),
   ]);
 }
 
@@ -59,5 +60,13 @@ export async function invalidateVisits(qc: QueryClient) {
   await Promise.all([
     qc.invalidateQueries({ queryKey: getListVisitsQueryKey() }),
     qc.invalidateQueries({ queryKey: getGetDashboardQueryKey() }),
+    invalidateBriefings(qc),
   ]);
+}
+
+function invalidateBriefings(qc: QueryClient) {
+  return qc.invalidateQueries({
+    predicate: (query) => typeof query.queryKey[0] === "string" &&
+      /^\/api\/doctors\/\d+\/briefing$/.test(query.queryKey[0]),
+  });
 }

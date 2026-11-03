@@ -30,6 +30,7 @@ import type {
   Dashboard,
   DemoSession,
   Doctor,
+  DoctorBriefing,
   DoctorInput,
   HealthStatus,
   ListClinicDemoVisitsParams,
@@ -73,6 +74,101 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetDoctorBriefingUrl = (id: number,) => {
+
+
+
+
+  return `/api/doctors/${id}/briefing`
+}
+
+export const getDoctorBriefing = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<DoctorBriefing> => {
+
+  return customFetch<DoctorBriefing>(getGetDoctorBriefingUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDoctorBriefingQueryKey = (id: number,) => {
+    return [
+    `/api/doctors/${id}/briefing`
+    ] as const;
+    }
+
+
+export const getGetDoctorBriefingQueryOptions = <TData = Awaited<ReturnType<typeof getDoctorBriefing>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDoctorBriefingQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDoctorBriefing>>> = ({ signal }) => getDoctorBriefing(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDoctorBriefingQueryResult = NonNullable<Awaited<ReturnType<typeof getDoctorBriefing>>>
+export type GetDoctorBriefingQueryError = ErrorType<BadRequestResponse | NotFoundResponse>
+
+
+export function useGetDoctorBriefing<TData = Awaited<ReturnType<typeof getDoctorBriefing>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDoctorBriefing>>,
+          TError,
+          Awaited<ReturnType<typeof getDoctorBriefing>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDoctorBriefing<TData = Awaited<ReturnType<typeof getDoctorBriefing>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDoctorBriefing>>,
+          TError,
+          Awaited<ReturnType<typeof getDoctorBriefing>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDoctorBriefing<TData = Awaited<ReturnType<typeof getDoctorBriefing>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDoctorBriefing<TData = Awaited<ReturnType<typeof getDoctorBriefing>>, TError = ErrorType<BadRequestResponse | NotFoundResponse>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDoctorBriefing>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDoctorBriefingQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetSmartRouteOptionsUrl = () => {
 

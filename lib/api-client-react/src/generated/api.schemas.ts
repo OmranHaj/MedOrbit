@@ -5,6 +5,120 @@
  * MedOrbit fictional medical representative directory and visit records
  * OpenAPI spec version: 0.1.0
  */
+export type BriefingCitationVerificationStatus = typeof BriefingCitationVerificationStatus[keyof typeof BriefingCitationVerificationStatus];
+
+
+export const BriefingCitationVerificationStatus = {
+  Confirmed_by_clinic_demo_code: 'Confirmed by clinic demo code',
+  Unverified_legacy_report: 'Unverified legacy report',
+} as const;
+
+export interface BriefingCitation {
+  visitId: number;
+  date: string;
+  excerpt: string;
+  verificationStatus: BriefingCitationVerificationStatus;
+}
+
+export type VisitOutcome = typeof VisitOutcome[keyof typeof VisitOutcome];
+
+
+export const VisitOutcome = {
+  مهتم: 'مهتم',
+  متابعة_لاحقة: 'متابعة لاحقة',
+  غير_مهتم: 'غير مهتم',
+  لم_تتم_الزيارة: 'لم تتم الزيارة',
+} as const;
+
+export interface BriefingTimelineItem {
+  visitId: number;
+  date: string;
+  productId: number;
+  productName: string;
+  outcome: VisitOutcome;
+  /** @nullable */
+  notesExcerpt: string | null;
+  notesWithheld: boolean;
+  citation: BriefingCitation;
+}
+
+export interface BriefingProduct {
+  productId: number;
+  productName: string;
+  recordCount: number;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export type BriefingInterestsSourceField = typeof BriefingInterestsSourceField[keyof typeof BriefingInterestsSourceField];
+
+
+export const BriefingInterestsSourceField = {
+  scientificInterests: 'scientificInterests',
+} as const;
+
+export interface BriefingInterests {
+  /** @nullable */
+  text: string | null;
+  sourceField: BriefingInterestsSourceField;
+  profileCreatedAt: string;
+  visitCitations: BriefingCitation[];
+  notice: string;
+}
+
+export type BriefingRequestState = typeof BriefingRequestState[keyof typeof BriefingRequestState];
+
+
+export const BriefingRequestState = {
+  untracked: 'untracked',
+} as const;
+
+export interface BriefingRequest {
+  quote: string;
+  state: BriefingRequestState;
+  notice: string;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export interface BriefingFollowUp {
+  text: string;
+  /** @minItems 1 */
+  citations: BriefingCitation[];
+}
+
+export type DoctorBriefingLabel = typeof DoctorBriefingLabel[keyof typeof DoctorBriefingLabel];
+
+
+export const DoctorBriefingLabel = {
+  ملخص_آلي_منظّم: 'ملخص آلي منظّم',
+} as const;
+
+export type DoctorBriefingEngine = typeof DoctorBriefingEngine[keyof typeof DoctorBriefingEngine];
+
+
+export const DoctorBriefingEngine = {
+  rules: 'rules',
+} as const;
+
+export interface DoctorBriefing {
+  doctorId: number;
+  doctorName: string;
+  label: DoctorBriefingLabel;
+  engine: DoctorBriefingEngine;
+  generativeAiUsed: false;
+  generatedAt: string;
+  totalVisitCount: number;
+  reviewedVisitCount: number;
+  timeline: BriefingTimelineItem[];
+  productsDiscussed: BriefingProduct[];
+  declaredScientificInterests: BriefingInterests;
+  outstandingRequests: BriefingRequest[];
+  suggestedFollowUp: BriefingFollowUp[];
+  privacyOmittedVisitCount: number;
+  limitations: string[];
+}
+
 export interface DemoStartPoint {
   id: string;
   name: string;
@@ -225,16 +339,6 @@ export interface Product {
   description: string;
   scientificTopic: string;
 }
-
-export type VisitOutcome = typeof VisitOutcome[keyof typeof VisitOutcome];
-
-
-export const VisitOutcome = {
-  مهتم: 'مهتم',
-  متابعة_لاحقة: 'متابعة لاحقة',
-  غير_مهتم: 'غير مهتم',
-  لم_تتم_الزيارة: 'لم تتم الزيارة',
-} as const;
 
 export interface VisitInput {
   pendingVisitId: string;
